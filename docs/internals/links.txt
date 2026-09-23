@@ -1,0 +1,16 @@
+RGB-D: https://www.geeksforgeeks.org/computer-vision/rgb-d-images-a-comprehensive-overview/
+
+Monocular VI SLAM: https://www.mathworks.com/help/vision/ug/monocular-visual-inertial-slam.html
+
+IMU: https://en.wikipedia.org/wiki/Inertial_measurement_unit
+
+ORB: https://en.wikipedia.org/wiki/Oriented_FAST_and_rotated_BRIEF
+
+opencv_orb: https://docs.opencv.org/4.13.0/d1/d89/tutorial_py_orb.html
+
+SIFT: https://en.wikipedia.org/wiki/Scale-invariant_feature_transform 
+      https://viblo.asia/p/sift-scale-invariant-feature-transform-huan-luyen-mo-hinh-cho-cac-bai-toan-phan-loai-924lJqJaZPM
+
+
+ORB-SLAM3: https://github.com/UZ-SLAMLab/ORB_SLAM3
+
