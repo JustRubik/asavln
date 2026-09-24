@@ -14,3 +14,7 @@ SIFT: https://en.wikipedia.org/wiki/Scale-invariant_feature_transform
 
 ORB-SLAM3: https://github.com/UZ-SLAMLab/ORB_SLAM3
 
+
+OKVIS2: 
+  link-github: https://github.com/ethz-mrl/okvis2
+  docs:        <this_project>/docs/refs/
