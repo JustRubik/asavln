@@ -84,3 +84,14 @@ Tóm tắt thì, xử lý ảnh 2D quét được, sau đó ánh xạ sang mô h
 Chốt lại, Visual SLAM là ứng dụng cảm biến camera để thực hiện bài toán định vị và định hướng, đồng thời hướng nghiên cứu có thể bẻ thành ứng dụng trí tuệ nhân tạo để vận hành xe.
 
 Còn mảng ekf-SLAM và fastSLAM là đang tập trung vào các bộ lọc thống kê -> mô hình ước lượng vị trí và pose của xe trong không gian, từ các quan sát không chắc chắn. 
+
+
+
+
+
+
+
+
+# Project
+
+OKVIS2
