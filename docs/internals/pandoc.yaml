@@ -1,0 +1,13 @@
+---
+documentclass: article
+mainfont: "Noto Serif"
+sansfont: "Noto Sans"
+monofont: "Noto Sans Mono"
+mathfont: "Latin Modern Math"
+fontsize: 12pt
+geometry:
+    - a4paper
+    - margin=2.5cm
+# css:
+#   - style.css
+---

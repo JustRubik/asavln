@@ -1,97 +1,42 @@
 # Notes
 
-By JustRubik / DangHuyHieu
+Written by JustRubik / DangHuyHieu
 
-## About
+# Yêu cầu kĩ thuật
 
-### Visual SLAM Algorithm
+## Mô tả chung
 
-Visual SLAM (VSLAM) trên xe tự hành là thuật toán để phân tích ảnh mà các cảm biến quét được khi xe di chuyển, đồng thời lập bản đồ. Sau đó xe có thể tự định vị trong không gian và thực hiện các tác vụ.
+Sử dụng thuật toán SLAM - Simultaneous Localization And Mapping - để ứng dụng trong robot hút bụi.
 
-SLAM trở thành giải pháp thay thế GPS, ví dụ như trong một vùng không gian giới hạn.
+## Mục tiêu
 
-### Phân loại VSLAM
+Tạo được chương trình mô phỏng thể hiện được cách 1 con robot hút bụi lập được bản đồ, lập đường đi, xác định vị trí, và thực hiện nhiệm vụ.
 
-Visual Only SLAM (Monocular SLAM)
+Có cân nhắc sử dụng phần cứng. (sẽ nói rõ hơn ở phần Công cụ)
 
-Visual Inertial (Stereo)
+## Công cụ
 
-RGB-D SLAM
+- Matlab (nếu có, có thể cân nhắc sử dụng octave)
+- C/C++ (để viết firmware cho vi điều khiển, có thể mô phỏng)
+- Assembly (nếu cần thiết)
+- Git/Github (quản lý phiên bản mã nguồn của dự án)
+- Phần cứng (trong trường hợp cần), bao gồm: vi điều khiển esp32/stm32, động cơ giảm tốc, IMU, trong trường hợp tính toán quá nặng mà mcu  không kham nổi -> sử dụng laptop và truyền với wifi.
+- Thuần mô phỏng, thì có thể cân nhắc mqtt.
 
-### 3 tiến trình chính của Visual-based SLAM 
+## Sản phẩm đầu ra
 
-Có 3 nhiệm vụ chính để tạo lập 1 bản đồ 3D từ những bức ảnh 2D mà cảm biến quét được:
+Hai hướng: 
 
-- Khởi hành (initialization)
+* Chỉ mô phỏng: 1 chương trình mô phỏng được quá trình robot làm việc, đo đạc và viết báo cáo.
+* Có phần cứng: 1 robot được mô tả bằng 4 bánh xe đơn giản, phải thể hiện được quá trình làm việc.
 
-- Theo dõi (tracking)
+Sản phẩm nộp thầy: 1 báo cáo đầy đủ về sản phẩm (pdf, docx, v.v), 1 slide thuyết trình, sản phẩm demo.
 
-- Lập bản đồ (mapping)
+## Yêu cầu kĩ thuật
 
-## Về kĩ thuật SLAM
+On going...
 
-### Chuẩn bị về hệ thống và thu thập dữ liệu
+## Kế hoạch công việc
 
-Camera, cảm biến, thu thập dữ liệu để vi điều khiển xử lý thông tin và quyết định các bước tiếp theo của xe tự hành.
+On going...
 
-Cần thiết kế hệ thống để giảm thiểu lỗi lan truyền (error propagation) và phải lưu ý về thiết kế dữ liệu để tối ưu hóa hiệu năng bởi việc xử lý lượng lớn thông tin động (dynamic and varied environments) trong suốt quá trình xe hoạt động.
-
-### Định vị
-
-Xác định vị trí của xe trong không gian. Không gian được sinh ra từ việc tính toán ở bước trên.
-
-Sử dụng các phương pháp như là ORB (Oriented FAST and Rotated BRIEF) hay SIFT (Scale-Invarient Feature Transform).
-
-Thành phần quan trọng: feature tracking (theo dõi đặc điểm nhận dạng của đối tượng), feature matching (sử dụng đặc điểm nhận dạng của đối tượng để đối chiếu), relocalization (tái định vị), và pose estimation (ước lượng tư thế).
-
-### Lập bản đồ
-
-Hệ thống lập bản đồ dựa trên: occupancy grids (lưới chiếm dụ), relocalization (tái định vị), và pose estimation (ước lượng tư thế).
-
-### Lập bản đồ
-
-Hệ thống lập bản đồ dựa trên: occupancy grids (lưới chiếm dụng), point clouds (mây điểm, lưới điểm).
-
-### Tinh chỉnh chương trình và Vòng lặp đóng
-
-Process tuning:
-
-- Tìm điểm cân bằng giữa độ chính xác, hiệu suất tính toán và khả năng thích ứng.
-- Đảm bảo tính real-time thông qua kiểm thử nghiêm ngặt
-
-## Mô hình của VSLAM
-
-Ứng dụng học máy, học sâu và cảm biến cắt biên (cutting edge sensors???) để xe thích ứng được với những tình huống không quen
-
-3 mô hình V-SLAM (như trình bày bên trên)
-
-### Visual-Only SLAM (monocular VSLAM)
-
-Tóm tắt thì, xử lý ảnh 2D quét được, sau đó ánh xạ sang mô hình 3D bằng các tính toán.
-
-Điểm mạnh: giá thành rẻ, tiết kiệm điện, nhanh chóng triển khai 
-
-Điểm yếu: độ chính xác không tốt
-
-### Visual-Inertial SLAM 
-
-Đoạn sau này tài liệu viết lan man quá :D Bỏ qua đi
-
-
-
-# Conclusion
-
-Chốt lại, Visual SLAM là ứng dụng cảm biến camera để thực hiện bài toán định vị và định hướng, đồng thời hướng nghiên cứu có thể bẻ thành ứng dụng trí tuệ nhân tạo để vận hành xe.
-
-Còn mảng ekf-SLAM và fastSLAM là đang tập trung vào các bộ lọc thống kê -> mô hình ước lượng vị trí và pose của xe trong không gian, từ các quan sát không chắc chắn. 
-
-
-
-
-
-
-
-
-# Project
-
-OKVIS2
