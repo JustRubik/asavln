@@ -10,6 +10,10 @@
 
 ---
 
+# LƯU Ý
+
+File do chatGPT viết, đọc lại từng dòng để sửa 
+
 # 1. Phạm vi
 
 Tài liệu này đặc tả thuật toán SLAM được sử dụng trong mô phỏng robot hút bụi.
