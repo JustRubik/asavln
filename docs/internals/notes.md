@@ -16,11 +16,12 @@ Có cân nhắc sử dụng phần cứng. (sẽ nói rõ hơn ở phần Công 
 
 ## Công cụ
 
+- Python (để đảm nhiệm các nhệm vụ về visual)
 - Matlab (nếu có, có thể cân nhắc sử dụng octave)
 - C/C++ (để viết firmware cho vi điều khiển, có thể mô phỏng)
 - Assembly (nếu cần thiết)
 - Git/Github (quản lý phiên bản mã nguồn của dự án)
-- Phần cứng (trong trường hợp cần), bao gồm: vi điều khiển esp32/stm32, động cơ giảm tốc, IMU, trong trường hợp tính toán quá nặng mà mcu  không kham nổi -> sử dụng laptop và truyền với wifi.
+- Phần cứng (trong trường hợp cần), bao gồm: vi điều khiển esp32/stm32, động cơ giảm tốc, IMU, trong trường hợp tính toán quá nặng mà mcu không kham nổi -> sử dụng laptop và truyền với wifi.
 - Thuần mô phỏng, thì có thể cân nhắc mqtt.
 
 ## Sản phẩm đầu ra
@@ -34,9 +35,56 @@ Sản phẩm nộp thầy: 1 báo cáo đầy đủ về sản phẩm (pdf, docx
 
 ## Yêu cầu kĩ thuật
 
-On going...
+Xem thêm ở các tài liệu trong `specs/`
+
+### Scope
+
+#### Core
+
+- [ ] 2D environment
+- [ ] robot model
+- [ ] simulated LiDAR
+- [ ] odometry
+- [ ] SLAM
+- [ ] occupancy grid
+- [ ] localization
+- [ ] path planning
+- [ ] obstacle avoidance
+- [ ] cleaning/coverage
+- [ ] visualization
+
+#### Extension (nếu còn time)
+
+- [ ] IMU
+- [ ] real encoder
+- [ ] ESP32
+- [ ] WiFi
+- [ ] MQTT
+- [ ] real LiDAR
+- [ ] battery simulation
+- [ ] docking station
+- [ ] loop closure
+- [ ] dynamic obstacles
+- [ ] multi-room environment
 
 ## Kế hoạch công việc
 
-On going...
+### Phân công công việc
+
+(phân công cho việc mô phỏng)
+
+- Làm bản đồ (bản đồ 2D, con robot, vật cản, v.v)
+- SLAM (LiDAR SLAM, loop closure)
+- Path planning (lập đường chạy, tránh vật cản)
+- Làm documents (specs, .pdf, .ppt)
+- Quản lý mã nguồn
+- 
+
+### Kế hoạch tuần
+
+(tuần 1 bắt đầu từ 28/09/2026)
+
+|Tuần|Nội dung|Kết quả|
+|----|--------|------|
+|Tuần 1|Cả nhóm tập trung tìm hiểu thuật toán SLAM|Báo cáo về cách triển khai, thuật toán|
 

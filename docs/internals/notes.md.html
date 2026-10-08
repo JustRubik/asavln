@@ -44,6 +44,7 @@ vụ.</p>
 <p>Có cân nhắc sử dụng phần cứng. (sẽ nói rõ hơn ở phần Công cụ)</p>
 <h2 id="công-cụ">Công cụ</h2>
 <ul>
+<li>Python (để đảm nhiệm các nhệm vụ về visual)</li>
 <li>Matlab (nếu có, có thể cân nhắc sử dụng octave)</li>
 <li>C/C++ (để viết firmware cho vi điều khiển, có thể mô phỏng)</li>
 <li>Assembly (nếu cần thiết)</li>
@@ -64,8 +65,69 @@ hiện được quá trình làm việc.</li>
 <p>Sản phẩm nộp thầy: 1 báo cáo đầy đủ về sản phẩm (pdf, docx, v.v), 1
 slide thuyết trình, sản phẩm demo.</p>
 <h2 id="yêu-cầu-kĩ-thuật-1">Yêu cầu kĩ thuật</h2>
-<p>On going…</p>
+<p>Xem thêm ở các tài liệu trong <code>specs/</code></p>
+<h3 id="scope">Scope</h3>
+<h4 id="core">Core</h4>
+<ul class="task-list">
+<li><label><input type="checkbox" />2D environment</label></li>
+<li><label><input type="checkbox" />robot model</label></li>
+<li><label><input type="checkbox" />simulated LiDAR</label></li>
+<li><label><input type="checkbox" />odometry</label></li>
+<li><label><input type="checkbox" />SLAM</label></li>
+<li><label><input type="checkbox" />occupancy grid</label></li>
+<li><label><input type="checkbox" />localization</label></li>
+<li><label><input type="checkbox" />path planning</label></li>
+<li><label><input type="checkbox" />obstacle avoidance</label></li>
+<li><label><input type="checkbox" />cleaning/coverage</label></li>
+<li><label><input type="checkbox" />visualization</label></li>
+</ul>
+<h4 id="extension-nếu-còn-time">Extension (nếu còn time)</h4>
+<ul class="task-list">
+<li><label><input type="checkbox" />IMU</label></li>
+<li><label><input type="checkbox" />real encoder</label></li>
+<li><label><input type="checkbox" />ESP32</label></li>
+<li><label><input type="checkbox" />WiFi</label></li>
+<li><label><input type="checkbox" />MQTT</label></li>
+<li><label><input type="checkbox" />real LiDAR</label></li>
+<li><label><input type="checkbox" />battery simulation</label></li>
+<li><label><input type="checkbox" />docking station</label></li>
+<li><label><input type="checkbox" />loop closure</label></li>
+<li><label><input type="checkbox" />dynamic obstacles</label></li>
+<li><label><input type="checkbox" />multi-room environment</label></li>
+</ul>
 <h2 id="kế-hoạch-công-việc">Kế hoạch công việc</h2>
-<p>On going…</p>
+<h3 id="phân-công-công-việc">Phân công công việc</h3>
+<p>(phân công cho việc mô phỏng)</p>
+<ul>
+<li>Làm bản đồ (bản đồ 2D, con robot, vật cản, v.v)</li>
+<li>SLAM (LiDAR SLAM, loop closure)</li>
+<li>Path planning (lập đường chạy, tránh vật cản)</li>
+<li>Làm documents (specs, .pdf, .ppt)</li>
+<li>Quản lý mã nguồn</li>
+<li></li>
+</ul>
+<h3 id="kế-hoạch-tuần">Kế hoạch tuần</h3>
+<p>(tuần 1 bắt đầu từ 28/09/2026)</p>
+<table>
+<colgroup>
+<col style="width: 22%" />
+<col style="width: 44%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Tuần</th>
+<th>Nội dung</th>
+<th>Kết quả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tuần 1</td>
+<td>Cả nhóm tập trung tìm hiểu thuật toán SLAM</td>
+<td>Báo cáo về cách triển khai, thuật toán</td>
+</tr>
+</tbody>
+</table>
 </body>
 </html>
