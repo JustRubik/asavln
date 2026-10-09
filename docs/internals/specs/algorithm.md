@@ -2,17 +2,13 @@
 
 > Đặc tả thuật toán SLAM cho mô phỏng robot hút bụi 2D.
 >
-> **Thuật toán chính:** FastSLAM 1.0
-> **Nhóm thuật toán:** Rao-Blackwellized Particle Filter (RBPF)
-> **Loại SLAM:** SLAM dựa trên landmark
-> **Cảm biến:** LiDAR 2D / cảm biến khoảng cách mô phỏng
+> **Thuật toán chính:** FastSLAM 1.0  
+> **Nhóm thuật toán:** Rao-Blackwellized Particle Filter (RBPF)  
+> **Loại SLAM:** SLAM dựa trên landmark  
+> **Cảm biến:** LiDAR 2D / cảm biến khoảng cách mô phỏng  
 > **Cài đặt:** Tự cài đặt, không sử dụng thư viện SLAM bên ngoài
 
 ---
-
-# LƯU Ý
-
-File do chatGPT viết, đọc lại từng dòng để sửa 
 
 # 1. Phạm vi
 
@@ -20,18 +16,18 @@ Tài liệu này đặc tả thuật toán SLAM được sử dụng trong mô p
 
 Nội dung của tài liệu bao gồm:
 
-* mô hình xác suất của bài toán SLAM;
-* cách biểu diễn trạng thái robot và landmark;
-* mô hình chuyển động của robot;
-* mô hình quan sát của cảm biến;
-* khởi tạo landmark;
-* Data Association;
-* cập nhật landmark bằng EKF;
-* tính trọng số cho particle;
-* Resampling;
-* toàn bộ một vòng lặp FastSLAM;
-* các trường hợp đặc biệt và vấn đề số học;
-* phương pháp kiểm thử và đánh giá thuật toán.
+- mô hình xác suất của bài toán SLAM;
+- cách biểu diễn trạng thái robot và landmark;
+- mô hình chuyển động của robot;
+- mô hình quan sát của cảm biến;
+- khởi tạo landmark;
+- Data Association;
+- cập nhật landmark bằng EKF;
+- tính trọng số cho particle;
+- Resampling;
+- toàn bộ một vòng lặp FastSLAM;
+- các trường hợp đặc biệt và vấn đề số học;
+- phương pháp kiểm thử và đánh giá thuật toán.
 
 Tài liệu này mô tả **bản thân thuật toán**, không mô tả kiến trúc tổng thể của chương trình mô phỏng.
 
@@ -53,22 +49,26 @@ Project sử dụng **FastSLAM 1.0** làm thuật toán SLAM chính.
 
 FastSLAM được Montemerlo và cộng sự giới thiệu như một cách xây dựng SLAM dựa trên Rao-Blackwellized Particle Filter. Thay vì duy trì một phân phối Gaussian chung rất lớn cho robot và toàn bộ landmark, FastSLAM sử dụng các particle để biểu diễn sự không chắc chắn của quỹ đạo robot, đồng thời duy trì một bộ ước lượng riêng cho từng landmark.
 
-FastSLAM khai thác phân tích:
+FastSLAM khai thác phân tích xác suất:
 
-$$
-p(x_{1:t}, m \mid z_{1:t}, u_{1:t})
-=
+\[
+\boxed{
+\begin{aligned}
+&p(x_{1:t}, m \mid z_{1:t}, u_{1:t})\\[4pt]
+&\quad =
 p(x_{1:t} \mid z_{1:t}, u_{1:t})
 \prod_{j=1}^{N}
 p(m_j \mid x_{1:t}, z_{1:t}, u_{1:t})
-$$
+\end{aligned}
+}
+\]
 
 Trong đó:
 
-* $x_{1:t}$: quỹ đạo robot từ thời điểm 1 đến $t$;
-* $m_j$: landmark thứ $j$;
-* $z_{1:t}$: các quan sát từ cảm biến;
-* $u_{1:t}$: các điều khiển hoặc thông tin odometry.
+- \(x_{1:t}\): quỹ đạo robot từ thời điểm 1 đến \(t\);
+- \(m_j\): landmark thứ \(j\);
+- \(z_{1:t}\): các quan sát từ cảm biến;
+- \(u_{1:t}\): các điều khiển hoặc thông tin odometry.
 
 Đây là ý tưởng quan trọng nhất của FastSLAM.
 
@@ -136,6 +136,8 @@ Particle
 
 # 4. Luồng thuật toán tổng quát
 
+FastSLAM có thể được biểu diễn bằng flowchart sau:
+
 ```mermaid
 flowchart TD
     A[Khởi tạo FastSLAM] --> B[Khởi tạo các particle]
@@ -183,18 +185,18 @@ Resampling
 
 Phiên bản cơ sở sử dụng các giả định:
 
-* môi trường là 2D;
-* robot chuyển động trên một mặt phẳng;
-* pose robot được biểu diễn bằng $(x,y,\theta)$;
-* landmark được biểu diễn bằng điểm 2D;
-* chuyển động của robot có nhiễu;
-* phép đo cảm biến có nhiễu Gaussian;
-* landmark là tĩnh trong một lần chạy SLAM;
-* quan sát có thể được biểu diễn dưới dạng khoảng cách và góc;
-* mỗi quan sát có thể được liên kết với landmark đã biết hoặc được xem là landmark mới;
-* số lượng particle là hữu hạn;
-* ground truth chỉ được sử dụng để mô phỏng cảm biến và đánh giá kết quả;
-* ground truth không được cung cấp trực tiếp cho FastSLAM.
+- môi trường là 2D;
+- robot chuyển động trên một mặt phẳng;
+- pose robot được biểu diễn bằng \((x,y,\theta)\);
+- landmark được biểu diễn bằng điểm 2D;
+- chuyển động của robot có nhiễu;
+- phép đo cảm biến có nhiễu Gaussian;
+- landmark là tĩnh trong một lần chạy SLAM;
+- quan sát có thể được biểu diễn dưới dạng khoảng cách và góc;
+- mỗi quan sát có thể được liên kết với landmark đã biết hoặc được xem là landmark mới;
+- số lượng particle là hữu hạn;
+- ground truth chỉ được sử dụng để mô phỏng cảm biến và đánh giá kết quả;
+- ground truth không được cung cấp trực tiếp cho FastSLAM.
 
 Thuật toán **không được sử dụng**:
 
@@ -213,22 +215,22 @@ ground_truth_map
 
 Trạng thái robot:
 
-$$
-x_t =
+\[
+\mathbf{x}_t =
 \begin{bmatrix}
-x_t \\
-y_t \\
+x_t\\
+y_t\\
 \theta_t
 \end{bmatrix}
-$$
+\]
 
 Trong đó:
 
-* $x_t$: tọa độ theo trục $x$;
-* $y_t$: tọa độ theo trục $y$;
-* $\theta_t$: góc quay của robot.
+- \(x_t\): tọa độ theo trục \(x\);
+- \(y_t\): tọa độ theo trục \(y\);
+- \(\theta_t\): góc quay của robot.
 
-Pose thuộc không gian chuyển động phẳng $SE(2)$, tuy nhiên trong cài đặt có thể sử dụng trực tiếp vector:
+Pose thuộc không gian chuyển động phẳng \(SE(2)\), tuy nhiên trong cài đặt có thể sử dụng trực tiếp vector:
 
 ```text
 (x, y, theta)
@@ -238,25 +240,25 @@ Pose thuộc không gian chuyển động phẳng $SE(2)$, tuy nhiên trong cài
 
 ## 6.2 Trạng thái landmark
 
-Landmark thứ $j$:
+Landmark thứ \(j\):
 
-$$
-m_j =
+\[
+\mathbf{m}_j =
 \begin{bmatrix}
-m_{j,x} \\
+m_{j,x}\\
 m_{j,y}
 \end{bmatrix}
-$$
+\]
 
 Mỗi landmark có một ma trận covariance:
 
-$$
-\Sigma_j =
+\[
+\boldsymbol{\Sigma}_j =
 \begin{bmatrix}
-\sigma_x^2 & \sigma_{xy} \\
+\sigma_x^2 & \sigma_{xy}\\
 \sigma_{xy} & \sigma_y^2
 \end{bmatrix}
-$$
+\]
 
 Do đó một landmark có thể được biểu diễn:
 
@@ -271,22 +273,22 @@ Landmark
 
 ## 6.3 Trạng thái particle
 
-Particle thứ $i$:
+Particle thứ \(i\):
 
-$$
+\[
 P^{[i]} =
 \left(
 x_{1:t}^{[i]},
 m^{[i]},
 w^{[i]}
 \right)
-$$
+\]
 
 Trong đó:
 
-* $x_{1:t}^{[i]}$: giả thuyết quỹ đạo;
-* $m^{[i]}$: bản đồ landmark tương ứng;
-* $w^{[i]}$: trọng số của particle.
+- \(x_{1:t}^{[i]}\): giả thuyết quỹ đạo;
+- \(m^{[i]}\): bản đồ landmark tương ứng;
+- \(w^{[i]}\): trọng số của particle.
 
 Trong cài đặt thực tế, nếu không cần lưu toàn bộ lịch sử quỹ đạo thì chỉ cần lưu pose hiện tại.
 
@@ -328,46 +330,48 @@ Quan sát từ cảm biến được biểu diễn tương đối với hệ t�
 
 Với pose:
 
-$$
-x =
+\[
+\mathbf{x}_r =
 \begin{bmatrix}
 x_r\\
 y_r\\
 \theta
 \end{bmatrix}
-$$
+\]
 
 và điểm trong robot frame:
 
-$$
-p_r =
+\[
+\mathbf{p}_r =
 \begin{bmatrix}
 x'_r\\
 y'_r
 \end{bmatrix}
-$$
+\]
 
 điểm trong world frame:
 
-$$
-p_w =
+\[
+\boxed{
+\mathbf{p}_w =
 \begin{bmatrix}
 x_r\\
 y_r
 \end{bmatrix}
 +
-R(\theta)p_r
-$$
+R(\theta)\mathbf{p}_r
+}
+\]
 
 với:
 
-$$
+\[
 R(\theta)=
 \begin{bmatrix}
 \cos\theta & -\sin\theta\\
 \sin\theta & \cos\theta
 \end{bmatrix}
-$$
+\]
 
 Phép biến đổi này được sử dụng khi khởi tạo landmark mới.
 
@@ -377,15 +381,15 @@ Phép biến đổi này được sử dụng khi khởi tạo landmark mới.
 
 FastSLAM cần mô hình chuyển động xác suất:
 
-$$
-p(x_t \mid x_{t-1},u_t)
-$$
+\[
+p(\mathbf{x}_t \mid \mathbf{x}_{t-1},\mathbf{u}_t)
+\]
 
 Trong đó:
 
-* $x_{t-1}$: pose trước đó;
-* $u_t$: điều khiển hoặc odometry;
-* $x_t$: pose mới.
+- \(\mathbf{x}_{t-1}\): pose trước đó;
+- \(\mathbf{u}_t\): điều khiển hoặc odometry;
+- \(\mathbf{x}_t\): pose mới.
 
 Simulator nên cung cấp ít nhất:
 
@@ -401,26 +405,28 @@ hoặc một dạng odometry tương đương.
 
 Với:
 
-$$
-u_t =
+\[
+\mathbf{u}_t =
 \begin{bmatrix}
 \Delta s\\
 \Delta\theta
 \end{bmatrix}
-$$
+\]
 
 ta có thể mô hình hóa chuyển động:
 
-$$
-x_t =
-x_{t-1}
+\[
+\boxed{
+\mathbf{x}_t =
+\mathbf{x}_{t-1}
 +
 \begin{bmatrix}
 \Delta s\cos\theta_{t-1}\\
 \Delta s\sin\theta_{t-1}\\
 \Delta\theta
 \end{bmatrix}
-$$
+}
+\]
 
 Đây chỉ là chuyển động xác định.
 
@@ -428,25 +434,25 @@ Trong FastSLAM, cần thêm nhiễu chuyển động.
 
 Ví dụ:
 
-$$
+\[
 \Delta s'=\Delta s+\epsilon_s
-$$
+\]
 
-$$
+\[
 \Delta\theta'=\Delta\theta+\epsilon_\theta
-$$
+\]
 
 với:
 
-$$
+\[
 \epsilon_s\sim\mathcal{N}(0,\sigma_s^2)
-$$
+\]
 
 và:
 
-$$
+\[
 \epsilon_\theta\sim\mathcal{N}(0,\sigma_\theta^2)
-$$
+\]
 
 ---
 
@@ -456,60 +462,59 @@ $$
 
 Mặc dù cảm biến vật lý trong mô phỏng là LiDAR 2D, phần FastSLAM cơ sở sử dụng quan sát landmark dạng:
 
-$$
-z_t^j=
+\[
+\mathbf{z}_t^j =
 \begin{bmatrix}
 r\\
 \phi
 \end{bmatrix}
-$$
+\]
 
 Trong đó:
 
-* $r$: khoảng cách từ robot đến landmark;
-* $\phi$: góc của landmark so với hướng robot.
+- \(r\): khoảng cách từ robot đến landmark;
+- \(\phi\): góc của landmark so với hướng robot.
 
 Với landmark:
 
-$$
-m_j=(m_x,m_y)
-$$
+\[
+\mathbf{m}_j=(m_x,m_y)
+\]
 
 và robot:
 
-$$
+\[
 (x,y,\theta)
-$$
+\]
 
 ta có:
 
-$$
+\[
 \Delta x=m_x-x
-$$
+\]
 
-$$
+\[
 \Delta y=m_y-y
-$$
+\]
 
 Khoảng cách:
 
-$$
-r=
-\sqrt{\Delta x^2+\Delta y^2}
-$$
+\[
+r=\sqrt{(\Delta x)^2+(\Delta y)^2}
+\]
 
 Góc:
 
-$$
+\[
 \phi=
 \operatorname{atan2}(\Delta y,\Delta x)-\theta
-$$
+\]
 
 Góc phải được chuẩn hóa về:
 
-$$
+\[
 [-\pi,\pi)
-$$
+\]
 
 ---
 
@@ -533,19 +538,19 @@ FastSLAM
 
 Một scan gồm nhiều phép đo:
 
-$$
+\[
 z_k=(r_k,\phi_k)
-$$
+\]
 
 Để sử dụng FastSLAM landmark-based, cần có bước trích xuất feature để biến scan thành các landmark có thể nhận dạng.
 
 Có thể sử dụng:
 
-* landmark dạng điểm được tạo sẵn trong simulator;
-* phát hiện corner;
-* giao điểm của các đoạn thẳng;
-* gom nhóm các điểm từ LiDAR;
-* các landmark được simulator cung cấp thông qua mô phỏng cảm biến.
+- landmark dạng điểm được tạo sẵn trong simulator;
+- phát hiện corner;
+- giao điểm của các đoạn thẳng;
+- gom nhóm các điểm từ LiDAR;
+- các landmark được simulator cung cấp thông qua mô phỏng cảm biến.
 
 ### Lựa chọn cho phiên bản đầu tiên
 
@@ -569,44 +574,46 @@ Sau khi FastSLAM hoạt động ổn định, landmark có thể được thay t
 
 # 11. Mô hình quan sát
 
-Với landmark $m_j$ và pose robot $x_t$:
+Với landmark \(\mathbf{m}_j\) và pose robot \(\mathbf{x}_t\):
 
-$$
-h(x_t,m_j)
+\[
+\boxed{
+h(\mathbf{x}_t,\mathbf{m}_j)
 =
 \begin{bmatrix}
-\sqrt{(m_x-x)^2+(m_y-y)^2}\\
+\sqrt{(m_x-x)^2+(m_y-y)^2}\\[6pt]
 \operatorname{atan2}(m_y-y,m_x-x)-\theta
 \end{bmatrix}
-$$
+}
+\]
 
 Đây là quan sát dự đoán:
 
-$$
-\hat z_t^j=h(x_t,m_j)
-$$
+\[
+\hat{\mathbf{z}}_t^j=h(\mathbf{x}_t,\mathbf{m}_j)
+\]
 
 Phép đo thực tế:
 
-$$
-z_t^j=h(x_t,m_j)+v_t
-$$
+\[
+\mathbf{z}_t^j=h(\mathbf{x}_t,\mathbf{m}_j)+\mathbf{v}_t
+\]
 
 với:
 
-$$
-v_t\sim\mathcal{N}(0,Q)
-$$
+\[
+\mathbf{v}_t\sim\mathcal{N}(\mathbf{0},Q)
+\]
 
-Trong đó $Q$ là covariance của nhiễu cảm biến:
+Trong đó \(Q\) là covariance của nhiễu cảm biến:
 
-$$
+\[
 Q=
 \begin{bmatrix}
-\sigma_r^2&0\\
-0&\sigma_\phi^2
+\sigma_r^2 & 0\\
+0 & \sigma_\phi^2
 \end{bmatrix}
-$$
+\]
 
 ---
 
@@ -634,33 +641,35 @@ landmark đã biết / landmark mới
 
 ## 12.1 Innovation
 
-Với landmark ứng viên $j$:
+Với landmark ứng viên \(j\):
 
-$$
-\nu=z_t-\hat z_t^j
-$$
+\[
+\boldsymbol{\nu}=\mathbf{z}_t-\hat{\mathbf{z}}_t^j
+\]
 
-Thành phần góc phải được chuẩn hóa.
+Thành phần góc phải được chuẩn hóa:
 
-$$
+\[
 \nu_\phi=
 \operatorname{normalizeAngle}
-(\phi-\hat\phi)
-$$
+\left(\phi-\hat{\phi}\right)
+\]
 
 ---
 
 ## 12.2 Covariance của innovation
 
-$$
+\[
+\boxed{
 S=H\Sigma_jH^T+Q
-$$
+}
+\]
 
 Trong đó:
 
-* $H$: Jacobian của mô hình quan sát;
-* $\Sigma_j$: covariance của landmark;
-* $Q$: covariance nhiễu cảm biến.
+- \(H\): Jacobian của mô hình quan sát;
+- \(\Sigma_j\): covariance của landmark;
+- \(Q\): covariance nhiễu cảm biến.
 
 ---
 
@@ -668,18 +677,19 @@ Trong đó:
 
 Mức độ tương thích:
 
-$$
-d^2=
-\nu^TS^{-1}\nu
-$$
+\[
+\boxed{
+d^2=\boldsymbol{\nu}^T S^{-1}\boldsymbol{\nu}
+}
+\]
 
 Một landmark được xem là phù hợp nếu:
 
-$$
+\[
 d^2<\gamma
-$$
+\]
 
-với $\gamma$ là ngưỡng Data Association.
+với \(\gamma\) là ngưỡng Data Association.
 
 Nếu có nhiều landmark phù hợp, chọn landmark có khoảng cách Mahalanobis nhỏ nhất.
 
@@ -705,35 +715,37 @@ Không được ép mọi quan sát phải thuộc về một landmark cũ.
 
 Với quan sát:
 
-$$
-z=
+\[
+\mathbf{z}=
 \begin{bmatrix}
 r\\
 \phi
 \end{bmatrix}
-$$
+\]
 
 tọa độ landmark trong robot frame:
 
-$$
-p_r=
+\[
+\mathbf{p}_r=
 \begin{bmatrix}
 r\cos\phi\\
 r\sin\phi
 \end{bmatrix}
-$$
+\]
 
 Sau đó chuyển sang world frame:
 
-$$
-m=
+\[
+\boxed{
+\mathbf{m}=
 \begin{bmatrix}
 x\\
 y
 \end{bmatrix}
 +
-R(\theta)p_r
-$$
+R(\theta)\mathbf{p}_r
+}
+\]
 
 Đây là mean ban đầu của landmark.
 
@@ -745,25 +757,25 @@ Covariance của landmark phải thể hiện được độ không chắc chắ
 
 Gọi:
 
-$$
-g(x,z)
-$$
+\[
+g(\mathbf{x},\mathbf{z})
+\]
 
 là mô hình chuyển ngược từ observation sang landmark.
 
 Khi đó:
 
-$$
-\Sigma_m=
-G_zQG_z^T
-$$
+\[
+\boxed{
+\Sigma_m=G_z Q G_z^T
+}
+\]
 
 với:
 
-$$
-G_z=
-\frac{\partial g}{\partial z}
-$$
+\[
+G_z=\frac{\partial g}{\partial \mathbf{z}}
+\]
 
 là Jacobian của mô hình nghịch đảo theo observation.
 
@@ -773,25 +785,25 @@ là Jacobian của mô hình nghịch đảo theo observation.
 
 Khi một observation được liên kết với landmark đã tồn tại, landmark được cập nhật bằng EKF.
 
-Landmark có:
+Landmark có mean:
 
-$$
-\mu_j
-$$
+\[
+\boldsymbol{\mu}_j
+\]
 
-và:
+và covariance:
 
-$$
+\[
 \Sigma_j
-$$
+\]
 
 ---
 
 ## 14.1 Dự đoán observation
 
-$$
-\hat z=h(x,m_j)
-$$
+\[
+\hat{\mathbf{z}}=h(\mathbf{x},\boldsymbol{\mu}_j)
+\]
 
 ---
 
@@ -799,36 +811,38 @@ $$
 
 Đặt:
 
-$$
+\[
 q=(m_x-x)^2+(m_y-y)^2
-$$
+\]
 
 và:
 
-$$
-r=\sqrt q
-$$
+\[
+r=\sqrt{q}
+\]
 
 Jacobian theo tọa độ landmark:
 
-$$
+\[
+\boxed{
 H=
 \begin{bmatrix}
 \dfrac{m_x-x}{r}
 &
 \dfrac{m_y-y}{r}
-\\[8pt]
+\\[10pt]
 -\dfrac{m_y-y}{q}
 &
 \dfrac{m_x-x}{q}
 \end{bmatrix}
-$$
+}
+\]
 
 Phải xử lý trường hợp:
 
-$$
-q\approx0
-$$
+\[
+q\approx 0
+\]
 
 vì Jacobian trở nên không ổn định khi robot ở quá gần landmark.
 
@@ -836,41 +850,47 @@ vì Jacobian trở nên không ổn định khi robot ở quá gần landmark.
 
 ## 14.3 Innovation
 
-$$
-\nu=z-\hat z
-$$
+\[
+\boldsymbol{\nu}=\mathbf{z}-\hat{\mathbf{z}}
+\]
 
 Chuẩn hóa thành phần góc:
 
-$$
+\[
 \nu_\phi
 \leftarrow
 \operatorname{normalizeAngle}(\nu_\phi)
-$$
+\]
 
 ---
 
 ## 14.4 Covariance của innovation
 
-$$
+\[
 S=H\Sigma_jH^T+Q
-$$
+\]
 
 ---
 
 ## 14.5 Kalman Gain
 
-$$
+\[
+\boxed{
 K=\Sigma_jH^TS^{-1}
-$$
+}
+\]
 
 ---
 
 ## 14.6 Cập nhật mean
 
-$$
-\mu_j'=\mu_j+K\nu
-$$
+\[
+\boxed{
+\boldsymbol{\mu}_j'
+=
+\boldsymbol{\mu}_j+K\boldsymbol{\nu}
+}
+\]
 
 ---
 
@@ -878,28 +898,30 @@ $$
 
 Công thức EKF cơ bản:
 
-$$
+\[
 \Sigma_j'=(I-KH)\Sigma_j
-$$
+\]
 
 Để tăng độ ổn định số học, có thể sử dụng dạng Joseph:
 
-$$
+\[
+\boxed{
+\begin{aligned}
 \Sigma_j'
-=
-(I-KH)\Sigma_j(I-KH)^T
-+
-KQK^T
-$$
+={}&(I-KH)\Sigma_j(I-KH)^T\\
+&+KQK^T
+\end{aligned}
+}
+\]
 
 Sau đó đảm bảo covariance đối xứng:
 
-$$
+\[
 \Sigma_j
 \leftarrow
-\frac12
-(\Sigma_j+\Sigma_j^T)
-$$
+\frac{1}{2}
+\left(\Sigma_j+\Sigma_j^T\right)
+\]
 
 ---
 
@@ -909,45 +931,48 @@ Mỗi particle nhận một trọng số dựa trên mức độ phù hợp gi�
 
 Với một observation:
 
-$$
-w_i
-\propto
-p(z_t\mid x_t^{[i]},m^{[i]})
-$$
+\[
+w_i\propto
+p(\mathbf{z}_t\mid \mathbf{x}_t^{[i]},m^{[i]})
+\]
 
-Với innovation $\nu$ và covariance $S$:
+Với innovation \(\boldsymbol{\nu}\) và covariance \(S\):
 
-$$
-p(z_t)=
+\[
+\boxed{
+p(\mathbf{z}_t)=
 \frac{
 \exp\left(
--\frac12\nu^TS^{-1}\nu
+-\dfrac{1}{2}
+\boldsymbol{\nu}^T S^{-1}\boldsymbol{\nu}
 \right)
 }{
 \sqrt{(2\pi)^d|S|}
 }
-$$
+}
+\]
 
-Trong đó $d$ là số chiều của observation.
+Trong đó \(d\) là số chiều của observation.
 
 Với nhiều observation:
 
-$$
-w_i
-\propto
+\[
+w_i\propto
 \prod_k
-p(z_{t,k}\mid x_t^{[i]},m^{[i]})
-$$
+p(\mathbf{z}_{t,k}\mid \mathbf{x}_t^{[i]},m^{[i]})
+\]
 
 Không nên nhân trực tiếp nhiều xác suất nhỏ vì có thể gây underflow.
 
 Do đó nên sử dụng log-weight:
 
-$$
+\[
+\boxed{
 \log w_i=
 \sum_k
-\log p(z_{t,k}\mid x_t^{[i]},m^{[i]})
-$$
+\log p(\mathbf{z}_{t,k}\mid \mathbf{x}_t^{[i]},m^{[i]})
+}
+\]
 
 Sau đó chuẩn hóa bằng phương pháp ổn định số học.
 
@@ -955,39 +980,40 @@ Sau đó chuẩn hóa bằng phương pháp ổn định số học.
 
 # 16. Chuẩn hóa trọng số
 
-Với:
+Với các trọng số:
 
-$$
-w_1,w_2,\dots,w_N
-$$
+\[
+w_1,w_2,\ldots,w_N
+\]
 
 chuẩn hóa:
 
-$$
-\bar w_i=
-\frac{w_i}
-{\sum_{j=1}^{N}w_j}
-$$
+\[
+\boxed{
+\bar{w}_i=
+\frac{w_i}{\displaystyle\sum_{j=1}^{N}w_j}
+}
+\]
 
 Khi đó:
 
-$$
-\sum_i\bar w_i=1
-$$
+\[
+\sum_{i=1}^{N}\bar{w}_i=1
+\]
 
 Nếu:
 
-$$
-\sum_iw_i\approx0
-$$
+\[
+\sum_{i=1}^{N}w_i\approx 0
+\]
 
 không được thực hiện phép chia trực tiếp.
 
 Có thể sử dụng trọng số đồng đều làm phương án dự phòng:
 
-$$
-w_i=\frac1N
-$$
+\[
+w_i=\frac{1}{N}
+\]
 
 ---
 
@@ -997,29 +1023,29 @@ Sau khi tính trọng số, các particle có trọng số cao sẽ có nhiều 
 
 Phiên bản cơ sở sử dụng **systematic / low-variance resampling**.
 
-Với:
+Với các trọng số:
 
-$$
-w_1,\dots,w_N
-$$
+\[
+w_1,w_2,\ldots,w_N
+\]
 
 sinh:
 
-$$
-r\sim U(0,\frac1N)
-$$
+\[
+r\sim U\left(0,\frac{1}{N}\right)
+\]
 
 và:
 
-$$
+\[
 U_j=r+\frac{j}{N}
-$$
+\]
 
 với:
 
-$$
-j=0,\dots,N-1
-$$
+\[
+j=0,1,\ldots,N-1
+\]
 
 Sau đó duyệt phân phối tích lũy của trọng số để chọn particle tương ứng.
 
@@ -1031,17 +1057,19 @@ Particle Filter có thể không cần Resampling ở mọi vòng lặp.
 
 Effective Sample Size:
 
-$$
+\[
+\boxed{
 N_{\mathrm{eff}}
 =
-\frac1{\sum_iw_i^2}
-$$
+\frac{1}{\displaystyle\sum_{i=1}^{N}w_i^2}
+}
+\]
 
 Nếu:
 
-$$
+\[
 N_{\mathrm{eff}}<N_{\mathrm{threshold}}
-$$
+\]
 
 thì thực hiện Resampling.
 
@@ -1053,7 +1081,7 @@ Sau khi thuật toán hoạt động ổn định, có thể chuyển sang Resam
 
 # 19. Thuật toán FastSLAM 1.0 hoàn chỉnh
 
-Tại thời điểm $t$:
+Tại thời điểm \(t\):
 
 ```text
 Input:
@@ -1241,15 +1269,15 @@ Particle set biểu diễn một phân phối các pose.
 
 Có thể chọn particle có trọng số lớn nhất:
 
-$$
-\hat x_t=x_t^{[i^*]}
-$$
+\[
+\hat{\mathbf{x}}_t=\mathbf{x}_t^{[i^*]}
+\]
 
 với:
 
-$$
-i^*=\arg\max_iw_i
-$$
+\[
+i^*=\underset{i}{\arg\max}\;w_i
+\]
 
 Ưu điểm của phương pháp này:
 
@@ -1278,17 +1306,15 @@ Do đó trước khi chọn particle, không tồn tại duy nhất một bản 
 
 Phiên bản cơ sở sử dụng bản đồ của particle có trọng số lớn nhất:
 
-$$
-M_{\mathrm{estimated}}
-=
-M^{[i^*]}
-$$
+\[
+M_{\mathrm{estimated}}=M^{[i^*]}
+\]
 
 với:
 
-$$
-i^*=\arg\max_iw_i
-$$
+\[
+i^*=\underset{i}{\arg\max}\;w_i
+\]
 
 Điều này đảm bảo pose và bản đồ được lấy từ cùng một giả thuyết.
 
@@ -1307,10 +1333,10 @@ Ground-truth robot pose
 
 Dùng cho:
 
-* mô phỏng cảm biến;
-* kiểm tra va chạm;
-* đánh giá localization;
-* đánh giá mapping.
+- mô phỏng cảm biến;
+- kiểm tra va chạm;
+- đánh giá localization;
+- đánh giá mapping.
 
 ## SLAM estimate
 
@@ -1321,9 +1347,9 @@ Estimated landmark map
 
 Chỉ được tạo ra từ:
 
-* control / odometry;
-* sensor observation;
-* FastSLAM.
+- control / odometry;
+- sensor observation;
+- FastSLAM.
 
 FastSLAM **không được đọc trực tiếp**:
 
@@ -1367,11 +1393,11 @@ FastSLAM không được sử dụng thông tin ground truth về visibility.
 
 Cảm biến có thể tạo ra:
 
-* giá trị bằng maximum range;
-* không có phản hồi;
-* `NaN`;
-* `infinity`;
-* giá trị ngoài giới hạn cảm biến.
+- giá trị bằng maximum range;
+- không có phản hồi;
+- `NaN`;
+- `infinity`;
+- giá trị ngoài giới hạn cảm biến.
 
 Các observation không hợp lệ phải được loại bỏ trước khi đưa vào FastSLAM.
 
@@ -1396,18 +1422,20 @@ Các góc phải được chuẩn hóa.
 
 Định nghĩa:
 
-$$
+\[
+\boxed{
 \operatorname{normalizeAngle}(\alpha)
 =
-((\alpha+\pi)\bmod2\pi)-\pi
-$$
+\big((\alpha+\pi)\bmod 2\pi\big)-\pi
+}
+\]
 
 Cần sử dụng khi tính:
 
-* sai số bearing;
-* sai số orientation;
-* sai số góc giữa robot và landmark;
-* sai số Data Association.
+- sai số bearing;
+- sai số orientation;
+- sai số góc giữa robot và landmark;
+- sai số Data Association.
 
 Ví dụ:
 
@@ -1435,25 +1463,19 @@ Cần xử lý các vấn đề số học trong quá trình tính toán.
 
 ## 28.1 Covariance suy biến
 
-Trước khi tính:
+Trước khi giải hệ có dạng:
 
-$$
+\[
+S\mathbf{x}=\mathbf{b}
+\]
+
+phải kiểm tra \(S\) có hợp lệ hay không.
+
+Trong thực tế nên ưu tiên giải hệ tuyến tính này thay vì tính trực tiếp:
+
+\[
 S^{-1}
-$$
-
-phải kiểm tra $S$ có hợp lệ hay không.
-
-Trong thực tế nên ưu tiên giải hệ:
-
-$$
-Sx=b
-$$
-
-thay vì tính trực tiếp:
-
-$$
-S^{-1}
-$$
+\]
 
 khi có thể.
 
@@ -1461,21 +1483,23 @@ khi có thể.
 
 ## 28.2 Đối xứng covariance
 
-Do sai số số học:
+Do sai số số học, trường hợp:
 
-$$
+\[
 \Sigma\neq\Sigma^T
-$$
+\]
 
 có thể xuất hiện.
 
 Có thể sửa bằng:
 
-$$
+\[
+\boxed{
 \Sigma
 \leftarrow
-\frac12(\Sigma+\Sigma^T)
-$$
+\frac{1}{2}\left(\Sigma+\Sigma^T\right)
+}
+\]
 
 ---
 
@@ -1540,12 +1564,12 @@ Sau Resampling, hầu hết particle có thể trở thành bản sao của part
 
 Các hướng xử lý:
 
-* tăng số lượng particle;
-* cải thiện motion model;
-* cải thiện sensor model;
-* cải thiện Data Association;
-* sử dụng adaptive resampling;
-* sau này có thể triển khai FastSLAM 2.0.
+- tăng số lượng particle;
+- cải thiện motion model;
+- cải thiện sensor model;
+- cải thiện Data Association;
+- sử dụng adaptive resampling;
+- sau này có thể triển khai FastSLAM 2.0.
 
 Trong project này, cần ưu tiên FastSLAM 1.0 hoạt động đúng trước khi tối ưu.
 
@@ -1553,15 +1577,15 @@ Trong project này, cần ưu tiên FastSLAM 1.0 hoạt động đúng trước 
 
 # 31. FastSLAM 1.0 và FastSLAM 2.0
 
-| Đặc điểm                          | FastSLAM 1.0 | FastSLAM 2.0 |
-| --------------------------------- | ------------ | ------------ |
-| Particle Filter                   | Có           | Có           |
-| Landmark EKF                      | Có           | Có           |
-| Proposal chỉ dựa trên chuyển động | Có           | Không        |
-| Proposal sử dụng observation      | Không        | Có           |
-| Độ phức tạp cài đặt               | Thấp hơn     | Cao hơn      |
-| Phiên bản cơ sở                   | **Có**       | Không        |
-| Phần mở rộng                      | —            | Có thể       |
+| Đặc điểm | FastSLAM 1.0 | FastSLAM 2.0 |
+|---|---|---|
+| Particle Filter | Có | Có |
+| Landmark EKF | Có | Có |
+| Proposal chỉ dựa trên chuyển động | Có | Không |
+| Proposal sử dụng observation | Không | Có |
+| Độ phức tạp cài đặt | Thấp hơn | Cao hơn |
+| Phiên bản cơ sở | **Có** | Không |
+| Phần mở rộng | — | Có thể |
 
 FastSLAM 2.0 thay đổi proposal distribution để observation hiện tại có thể ảnh hưởng đến việc lấy mẫu pose robot.
 
@@ -1585,15 +1609,15 @@ thay vì triển khai cả hai cùng lúc.
 
 Gọi:
 
-* $N$: số particle;
-* $M$: số landmark;
-* $K$: số observation trong một timestep.
+- \(N\): số particle;
+- \(M\): số landmark;
+- \(K\): số observation trong một timestep.
 
 Với implementation đơn giản, mỗi observation kiểm tra toàn bộ landmark:
 
-$$
-O(NKM)
-$$
+\[
+\boxed{O(NKM)}
+\]
 
 Đây là độ phức tạp phù hợp cho phiên bản đầu tiên.
 
@@ -1613,15 +1637,15 @@ và:
 
 Phiên bản cơ sở:
 
-```text
-O(N × K × M)
-```
+\[
+O(N\times K\times M)
+\]
 
 Tối ưu Data Association có thể giảm xuống gần:
 
-```text
-O(N × K × log M)
-```
+\[
+O(N\times K\times\log M)
+\]
 
 tùy thuộc cấu trúc dữ liệu được sử dụng.
 
@@ -1737,7 +1761,7 @@ Kết quả:
 landmark = (r, 0)
 ```
 
-Sau đó kiểm tra khi robot quay $90^\circ$.
+Sau đó kiểm tra khi robot quay \(90^\circ\).
 
 ---
 
@@ -1858,23 +1882,25 @@ landmark ground truth
 
 Sai số vị trí:
 
-$$
-e_p(t)
-=
+\[
+\boxed{
+e_p(t)=
 \sqrt{
-(x_t-\hat x_t)^2+
-(y_t-\hat y_t)^2
+(x_t-\hat{x}_t)^2+
+(y_t-\hat{y}_t)^2
 }
-$$
+}
+\]
 
 Sai số orientation:
 
-$$
-e_\theta(t)
-=
+\[
+\boxed{
+e_\theta(t)=
 \operatorname{normalizeAngle}
-(\theta_t-\hat\theta_t)
-$$
+\left(\theta_t-\hat{\theta}_t\right)
+}
+\]
 
 Các chỉ số có thể sử dụng:
 
@@ -1890,12 +1916,13 @@ maximum orientation error
 
 # 38. Sai số mapping
 
-Với landmark ước lượng $\hat m_j$ và landmark thật $m_j$:
+Với landmark ước lượng \(\hat{\mathbf{m}}_j\) và landmark thật \(\mathbf{m}_j\):
 
-$$
-e_m=
-\|\hat m_j-m_j\|
-$$
+\[
+\boxed{
+e_m=\left\|\hat{\mathbf{m}}_j-\mathbf{m}_j\right\|
+}
+\]
 
 Để đánh giá mapping cần biết landmark nào tương ứng với landmark nào.
 
@@ -1937,22 +1964,22 @@ Sau đó tính giá trị trung bình và độ lệch khi cần.
 
 Implementation phải xác định cách xử lý:
 
-* không có observation;
-* toàn bộ LiDAR measurement không hợp lệ;
-* observation đầu tiên;
-* landmark mới;
-* quan sát lại landmark cũ;
-* robot chỉ quay;
-* control bằng 0;
-* range rất nhỏ;
-* range bằng maximum sensor range;
-* landmark quá gần robot;
-* innovation covariance suy biến;
-* toàn bộ particle có weight bằng 0;
-* một particle chiếm gần như toàn bộ xác suất;
-* không cần Resampling;
-* số lượng particle rất lớn;
-* bản đồ landmark rỗng.
+- không có observation;
+- toàn bộ LiDAR measurement không hợp lệ;
+- observation đầu tiên;
+- landmark mới;
+- quan sát lại landmark cũ;
+- robot chỉ quay;
+- control bằng 0;
+- range rất nhỏ;
+- range bằng maximum sensor range;
+- landmark quá gần robot;
+- innovation covariance suy biến;
+- toàn bộ particle có weight bằng 0;
+- một particle chiếm gần như toàn bộ xác suất;
+- không cần Resampling;
+- số lượng particle rất lớn;
+- bản đồ landmark rỗng.
 
 ---
 
@@ -1960,9 +1987,9 @@ Implementation phải xác định cách xử lý:
 
 Nếu:
 
-$$
+\[
 Z_t=\emptyset
-$$
+\]
 
 vẫn phải thực hiện motion update.
 
@@ -2102,14 +2129,14 @@ FastSLAM không chứa logic lập kế hoạch đường đi làm sạch.
 
 Implementation cơ sở **không phải**:
 
-* ORB-SLAM;
-* Visual SLAM;
-* RGB-D SLAM;
-* Graph SLAM;
-* scan-matching SLAM;
-* ICP-only localization;
-* occupancy-grid mapping;
-* Particle Filter localization thuần túy.
+- ORB-SLAM;
+- Visual SLAM;
+- RGB-D SLAM;
+- Graph SLAM;
+- scan-matching SLAM;
+- ICP-only localization;
+- occupancy-grid mapping;
+- Particle Filter localization thuần túy.
 
 Thuật toán của project là:
 
@@ -2166,129 +2193,129 @@ Mỗi thành phần toán học nên được kiểm thử độc lập trước
 
 ## 49.1 Nền tảng toán học
 
-* [ ] Xác định chính xác motion model.
-* [ ] Xác định mô hình nhiễu chuyển động.
-* [ ] Xác định chính xác sensor model.
-* [ ] Xác định range noise và bearing noise.
-* [ ] Xác định cách biểu diễn landmark.
-* [ ] Xác định phép biến đổi tọa độ.
-* [ ] Cài đặt normalize angle.
-* [ ] Suy ra và kiểm tra observation Jacobian.
-* [ ] Suy ra và kiểm tra inverse observation Jacobian.
+- [ ] Xác định chính xác motion model.
+- [ ] Xác định mô hình nhiễu chuyển động.
+- [ ] Xác định chính xác sensor model.
+- [ ] Xác định range noise và bearing noise.
+- [ ] Xác định cách biểu diễn landmark.
+- [ ] Xác định phép biến đổi tọa độ.
+- [ ] Cài đặt normalize angle.
+- [ ] Suy ra và kiểm tra observation Jacobian.
+- [ ] Suy ra và kiểm tra inverse observation Jacobian.
 
 ## 49.2 Motion model
 
-* [ ] Cài đặt chuyển động xác định.
-* [ ] Cài đặt stochastic motion model.
-* [ ] Kiểm thử đi thẳng.
-* [ ] Kiểm thử chỉ quay.
-* [ ] Kiểm thử vừa đi vừa quay.
-* [ ] Kiểm thử đứng yên.
-* [ ] Kiểm tra normalize angle.
+- [ ] Cài đặt chuyển động xác định.
+- [ ] Cài đặt stochastic motion model.
+- [ ] Kiểm thử đi thẳng.
+- [ ] Kiểm thử chỉ quay.
+- [ ] Kiểm thử vừa đi vừa quay.
+- [ ] Kiểm thử đứng yên.
+- [ ] Kiểm tra normalize angle.
 
 ## 49.3 Sensor model
 
-* [ ] Cài đặt range measurement.
-* [ ] Cài đặt bearing measurement.
-* [ ] Thêm range noise.
-* [ ] Thêm bearing noise.
-* [ ] Cài đặt giới hạn range.
-* [ ] Cài đặt field of view.
-* [ ] Loại bỏ observation không hợp lệ.
-* [ ] Kiểm thử observation có nhiễu.
+- [ ] Cài đặt range measurement.
+- [ ] Cài đặt bearing measurement.
+- [ ] Thêm range noise.
+- [ ] Thêm bearing noise.
+- [ ] Cài đặt giới hạn range.
+- [ ] Cài đặt field of view.
+- [ ] Loại bỏ observation không hợp lệ.
+- [ ] Kiểm thử observation có nhiễu.
 
 ## 49.4 Landmark initialization
 
-* [ ] Cài đặt inverse observation model.
-* [ ] Cài đặt robot-to-world transformation.
-* [ ] Cài đặt covariance ban đầu.
-* [ ] Kiểm thử landmark với nhiều orientation khác nhau.
-* [ ] Kiểm tra covariance.
+- [ ] Cài đặt inverse observation model.
+- [ ] Cài đặt robot-to-world transformation.
+- [ ] Cài đặt covariance ban đầu.
+- [ ] Kiểm thử landmark với nhiều orientation khác nhau.
+- [ ] Kiểm tra covariance.
 
 ## 49.5 EKF landmark update
 
-* [ ] Cài đặt predicted observation.
-* [ ] Cài đặt observation Jacobian.
-* [ ] Cài đặt innovation.
-* [ ] Cài đặt innovation covariance.
-* [ ] Cài đặt Kalman Gain.
-* [ ] Cài đặt cập nhật mean.
-* [ ] Cài đặt cập nhật covariance.
-* [ ] Sử dụng phép giải hệ ổn định số học.
-* [ ] Đảm bảo covariance đối xứng.
-* [ ] Kiểm thử EKF hội tụ.
+- [ ] Cài đặt predicted observation.
+- [ ] Cài đặt observation Jacobian.
+- [ ] Cài đặt innovation.
+- [ ] Cài đặt innovation covariance.
+- [ ] Cài đặt Kalman Gain.
+- [ ] Cài đặt cập nhật mean.
+- [ ] Cài đặt cập nhật covariance.
+- [ ] Sử dụng phép giải hệ ổn định số học.
+- [ ] Đảm bảo covariance đối xứng.
+- [ ] Kiểm thử EKF hội tụ.
 
 ## 49.6 Data Association
 
-* [ ] Cài đặt innovation.
-* [ ] Cài đặt Mahalanobis distance.
-* [ ] Cài đặt association threshold.
-* [ ] Cài đặt chọn landmark phù hợp nhất.
-* [ ] Xử lý landmark mới.
-* [ ] Kiểm thử các landmark gần nhau.
-* [ ] Kiểm thử observation có nhiễu lớn.
-* [ ] Kiểm thử trường hợp association sai.
+- [ ] Cài đặt innovation.
+- [ ] Cài đặt Mahalanobis distance.
+- [ ] Cài đặt association threshold.
+- [ ] Cài đặt chọn landmark phù hợp nhất.
+- [ ] Xử lý landmark mới.
+- [ ] Kiểm thử các landmark gần nhau.
+- [ ] Kiểm thử observation có nhiễu lớn.
+- [ ] Kiểm thử trường hợp association sai.
 
 ## 49.7 Particle Filter
 
-* [ ] Xác định cấu trúc particle.
-* [ ] Khởi tạo particle pose.
-* [ ] Khởi tạo particle map.
-* [ ] Cài đặt motion prediction.
-* [ ] Cài đặt observation update.
-* [ ] Cài đặt particle likelihood.
-* [ ] Cài đặt log-weight.
-* [ ] Cài đặt chuẩn hóa trọng số ổn định.
-* [ ] Cài đặt Effective Sample Size.
-* [ ] Cài đặt systematic resampling.
-* [ ] Kiểm thử Resampling độc lập.
+- [ ] Xác định cấu trúc particle.
+- [ ] Khởi tạo particle pose.
+- [ ] Khởi tạo particle map.
+- [ ] Cài đặt motion prediction.
+- [ ] Cài đặt observation update.
+- [ ] Cài đặt particle likelihood.
+- [ ] Cài đặt log-weight.
+- [ ] Cài đặt chuẩn hóa trọng số ổn định.
+- [ ] Cài đặt Effective Sample Size.
+- [ ] Cài đặt systematic resampling.
+- [ ] Kiểm thử Resampling độc lập.
 
 ## 49.8 FastSLAM hoàn chỉnh
 
-* [ ] Cài đặt một vòng FastSLAM hoàn chỉnh.
-* [ ] Kiểm tra thứ tự motion → observation → update.
-* [ ] Kiểm tra map riêng của từng particle.
-* [ ] Kiểm tra covariance riêng của từng landmark.
-* [ ] Kiểm tra particle weight.
-* [ ] Kiểm tra Resampling.
-* [ ] Cài đặt chọn particle tốt nhất.
-* [ ] Cài đặt lấy map từ particle tốt nhất.
+- [ ] Cài đặt một vòng FastSLAM hoàn chỉnh.
+- [ ] Kiểm tra thứ tự motion → observation → update.
+- [ ] Kiểm tra map riêng của từng particle.
+- [ ] Kiểm tra covariance riêng của từng landmark.
+- [ ] Kiểm tra particle weight.
+- [ ] Kiểm tra Resampling.
+- [ ] Cài đặt chọn particle tốt nhất.
+- [ ] Cài đặt lấy map từ particle tốt nhất.
 
 ## 49.9 Kiểm thử
 
-* [ ] Tạo môi trường landmark đơn giản.
-* [ ] Đánh giá localization với ground truth.
-* [ ] Đánh giá landmark với ground truth.
-* [ ] Thử nhiều số lượng particle.
-* [ ] Thử nhiều mức motion noise.
-* [ ] Thử nhiều mức sensor noise.
-* [ ] Thử nhiều association threshold.
-* [ ] Chạy với nhiều random seed.
-* [ ] Tính localization RMSE.
-* [ ] Tính mapping error.
-* [ ] Đo runtime.
-* [ ] Kiểm tra numerical stability.
+- [ ] Tạo môi trường landmark đơn giản.
+- [ ] Đánh giá localization với ground truth.
+- [ ] Đánh giá landmark với ground truth.
+- [ ] Thử nhiều số lượng particle.
+- [ ] Thử nhiều mức motion noise.
+- [ ] Thử nhiều mức sensor noise.
+- [ ] Thử nhiều association threshold.
+- [ ] Chạy với nhiều random seed.
+- [ ] Tính localization RMSE.
+- [ ] Tính mapping error.
+- [ ] Đo runtime.
+- [ ] Kiểm tra numerical stability.
 
 ## 49.10 Tích hợp simulator
 
-* [ ] Kết nối FastSLAM với odometry mô phỏng.
-* [ ] Kết nối FastSLAM với sensor observation.
-* [ ] Đảm bảo ground truth không được truyền vào FastSLAM.
-* [ ] Hiển thị pose ước lượng.
-* [ ] Hiển thị map ước lượng.
-* [ ] Chạy FastSLAM trong Exploration.
-* [ ] Tiếp tục FastSLAM trong Cleaning.
-* [ ] Kiểm thử khi môi trường thay đổi.
+- [ ] Kết nối FastSLAM với odometry mô phỏng.
+- [ ] Kết nối FastSLAM với sensor observation.
+- [ ] Đảm bảo ground truth không được truyền vào FastSLAM.
+- [ ] Hiển thị pose ước lượng.
+- [ ] Hiển thị map ước lượng.
+- [ ] Chạy FastSLAM trong Exploration.
+- [ ] Tiếp tục FastSLAM trong Cleaning.
+- [ ] Kiểm thử khi môi trường thay đổi.
 
 ## 49.11 Phần mở rộng
 
-* [ ] Cài đặt adaptive resampling.
-* [ ] Tối ưu cấu trúc dữ liệu cho Data Association.
-* [ ] Cài đặt trích xuất feature trực tiếp từ LiDAR.
-* [ ] Cài đặt FastSLAM 2.0.
-* [ ] So sánh FastSLAM 1.0 và FastSLAM 2.0.
-* [ ] Nghiên cứu occupancy-grid mapping.
-* [ ] Nghiên cứu scan matching.
+- [ ] Cài đặt adaptive resampling.
+- [ ] Tối ưu cấu trúc dữ liệu cho Data Association.
+- [ ] Cài đặt trích xuất feature trực tiếp từ LiDAR.
+- [ ] Cài đặt FastSLAM 2.0.
+- [ ] So sánh FastSLAM 1.0 và FastSLAM 2.0.
+- [ ] Nghiên cứu occupancy-grid mapping.
+- [ ] Nghiên cứu scan matching.
 
 ---
 
@@ -2296,18 +2323,18 @@ Mỗi thành phần toán học nên được kiểm thử độc lập trước
 
 Định lý Bayes:
 
-$$
-p(A\mid B)
-=
-\frac{p(B\mid A)p(A)}
-{p(B)}
-$$
+\[
+\boxed{
+p(A\mid B)=
+\frac{p(B\mid A)p(A)}{p(B)}
+}
+\]
 
 Trong SLAM, mục tiêu là ước lượng:
 
-$$
-p(x,m\mid z,u)
-$$
+\[
+p(\mathbf{x},m\mid \mathbf{z},\mathbf{u})
+\]
 
 Có thể hình dung:
 
@@ -2329,25 +2356,24 @@ FastSLAM xấp xỉ posterior này bằng particle cho quỹ đạo robot và c�
 
 Gaussian nhiều chiều:
 
-$$
-p(x)
-=
-\frac{1}
-{\sqrt{(2\pi)^n|\Sigma|}}
-\exp
-\left(
--\frac12
-(x-\mu)^T
+\[
+\boxed{
+p(\mathbf{x})=
+\frac{1}{\sqrt{(2\pi)^n|\Sigma|}}
+\exp\left(
+-\frac{1}{2}
+(\mathbf{x}-\boldsymbol{\mu})^T
 \Sigma^{-1}
-(x-\mu)
+(\mathbf{x}-\boldsymbol{\mu})
 \right)
-$$
+}
+\]
 
 Trong đó:
 
-* $\mu$: mean;
-* $\Sigma$: covariance;
-* $n$: số chiều.
+- \(\boldsymbol{\mu}\): mean;
+- \(\Sigma\): covariance;
+- \(n\): số chiều.
 
 Gaussian là thành phần cơ bản của EKF landmark.
 
@@ -2357,9 +2383,9 @@ Gaussian là thành phần cơ bản của EKF landmark.
 
 Kalman Filter ước lượng trạng thái:
 
-$$
-x\sim\mathcal{N}(\mu,\Sigma)
-$$
+\[
+\mathbf{x}\sim\mathcal{N}(\boldsymbol{\mu},\Sigma)
+\]
 
 Quy trình cơ bản:
 
@@ -2385,18 +2411,17 @@ FastSLAM sử dụng EKF thay vì Kalman Filter thông thường vì mô hình o
 
 Với observation phi tuyến:
 
-$$
-z=h(x)+v
-$$
+\[
+\mathbf{z}=h(\mathbf{x})+\mathbf{v}
+\]
 
 EKF tuyến tính hóa hàm observation quanh trạng thái hiện tại.
 
 Jacobian:
 
-$$
-H=
-\frac{\partial h}{\partial x}
-$$
+\[
+H=\frac{\partial h}{\partial \mathbf{x}}
+\]
 
 Sau đó áp dụng các công thức cập nhật Gaussian.
 
@@ -2410,15 +2435,22 @@ Trong FastSLAM:
 
 Particle Filter biểu diễn phân phối xác suất bằng một tập các mẫu:
 
-$$
-\{x^{[1]},x^{[2]},...,x^{[N]}\}
-$$
+\[
+\left\{
+\mathbf{x}^{[1]},
+\mathbf{x}^{[2]},
+\ldots,
+\mathbf{x}^{[N]}
+\right\}
+\]
 
 với trọng số:
 
-$$
-\{w_1,w_2,...,w_N\}
-$$
+\[
+\left\{
+w_1,w_2,\ldots,w_N
+\right\}
+\]
 
 Chu trình:
 
@@ -2466,24 +2498,25 @@ Do đó FastSLAM không dùng Particle Filter để lấy mẫu tất cả landm
 
 Với hàm phi tuyến:
 
-$$
-y=f(x)
-$$
+\[
+\mathbf{y}=f(\mathbf{x})
+\]
 
 Jacobian:
 
-$$
-J=
-\frac{\partial f}{\partial x}
-$$
+\[
+J=\frac{\partial f}{\partial \mathbf{x}}
+\]
 
 Nó mô tả xấp xỉ tuyến tính cục bộ:
 
-$$
-f(x+\Delta x)
+\[
+\boxed{
+f(\mathbf{x}+\Delta\mathbf{x})
 \approx
-f(x)+J\Delta x
-$$
+f(\mathbf{x})+J\Delta\mathbf{x}
+}
+\]
 
 EKF sử dụng Jacobian để tuyến tính hóa các hàm phi tuyến.
 
@@ -2629,32 +2662,32 @@ Việc tách hai phần này là điều kiện quan trọng để kết quả m
 
 ## FastSLAM
 
-1. Michael Montemerlo, Sebastian Thrun, Daphne Koller, Ben Wegbreit.
-   **FastSLAM: A Factored Solution to the Simultaneous Localization and Mapping Problem.**
+1. Michael Montemerlo, Sebastian Thrun, Daphne Koller, Ben Wegbreit.  
+   **FastSLAM: A Factored Solution to the Simultaneous Localization and Mapping Problem.**  
    AAAI, 2002.
 
-2. Michael Montemerlo, Sebastian Thrun, Daphne Koller, Ben Wegbreit.
-   **FastSLAM 2.0: An Improved Particle Filtering Algorithm for Simultaneous Localization and Mapping that Probably Works.**
+2. Michael Montemerlo, Sebastian Thrun, Daphne Koller, Ben Wegbreit.  
+   **FastSLAM 2.0: An Improved Particle Filtering Algorithm for Simultaneous Localization and Mapping that Probably Works.**  
    IJCAI, 2003.
 
 ## Rao-Blackwellized Particle Filter
 
-3. Arnaud Doucet, Nando de Freitas, Kevin Murphy, Stuart Russell.
-   **Rao-Blackwellised Particle Filtering for Dynamic Bayesian Networks.**
+3. Arnaud Doucet, Nando de Freitas, Kevin Murphy, Stuart Russell.  
+   **Rao-Blackwellised Particle Filtering for Dynamic Bayesian Networks.**  
    UAI, 2000.
 
 ## Kiến thức nền tảng
 
-4. Sebastian Thrun, Wolfram Burgard, Dieter Fox.
-   **Probabilistic Robotics.**
+4. Sebastian Thrun, Wolfram Burgard, Dieter Fox.  
+   **Probabilistic Robotics.**  
    MIT Press, 2005.
 
 ## Implementation tham khảo
 
-5. Atsushi Sakai et al.
+5. Atsushi Sakai et al.  
    **PythonRobotics — FastSLAM 1.0 / FastSLAM 2.0.**
 
-6. yingkunwu.
+6. yingkunwu.  
    **FastSLAM — FastSLAM 1.0 / 2.0 trong môi trường mô phỏng 2D.**
 
 Các repository chỉ được sử dụng để tham khảo cách triển khai. Thuật toán chính của tài liệu dựa trên các tài liệu FastSLAM gốc.
@@ -2669,35 +2702,25 @@ Thuật toán của project được xác định như sau:
 
 Chu trình xử lý:
 
-```Box
-   ┌──────┐
-   │Motion│
-   └───┬──┘
-       ▼
-   ┌───────────┐
-   │Observation│
-   └───┬───────┘
-       ▼
-   ┌────────────────┐
-   │Data Association│
-   └───┬────────────┘
-       ▼
-   ┌────────────────────┐
-   │EKF / Initialization│
-   └───┬────────────────┘
-       ▼
-   ┌──────┐
-   │Weight│
-   └───┬──┘
-       ▼
-   ┌─────────┐
-   │Normalize│
-   └───┬─────┘
-       ▼
-   ┌────────┐
-   │Resample│
-   └────────┘
-```
+\[
+\boxed{
+\begin{gathered}
+\text{Motion}\\
+\downarrow\\
+\text{Observation}\\
+\downarrow\\
+\text{Data Association}\\
+\downarrow\\
+\text{EKF / Initialization}\\
+\downarrow\\
+\text{Weight}\\
+\downarrow\\
+\text{Normalize}\\
+\downarrow\\
+\text{Resample}
+\end{gathered}
+}
+\]
 
 Implementation ban đầu phải ưu tiên:
 
