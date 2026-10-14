@@ -2356,24 +2356,14 @@ FastSLAM xấp xỉ posterior này bằng particle cho quỹ đạo robot và c�
 
 Gaussian nhiều chiều:
 
-\[
-\boxed{
-p(\mathbf{x})=
-\frac{1}{\sqrt{(2\pi)^n|\Sigma|}}
-\exp\left(
--\frac{1}{2}
-(\mathbf{x}-\boldsymbol{\mu})^T
-\Sigma^{-1}
-(\mathbf{x}-\boldsymbol{\mu})
-\right)
-}
-\]
+`p(x) = 1 / sqrt((2π)^n |Σ|) * exp(-1/2 * (x - μ)T * Σ^(-1) * (x - μ))`
 
 Trong đó:
 
-- \(\boldsymbol{\mu}\): mean;
-- \(\Sigma\): covariance;
-- \(n\): số chiều.
+- μ: mean;
+- Σ: covariance;
+- n: số chiều;
+- (x - μ)T * Σ^(-1) * (x - μ): Dạng toàn phương đo khoảng cách Mahalanobis từ x đến tâm μ.
 
 Gaussian là thành phần cơ bản của EKF landmark.
 
@@ -2382,6 +2372,8 @@ Gaussian là thành phần cơ bản của EKF landmark.
 # 52. Phụ lục C — Kalman Filter
 
 Kalman Filter ước lượng trạng thái:
+
+`x ~ N(µ, Σ)`
 
 \[
 \mathbf{x}\sim\mathcal{N}(\boldsymbol{\mu},\Sigma)
@@ -2411,6 +2403,8 @@ FastSLAM sử dụng EKF thay vì Kalman Filter thông thường vì mô hình o
 
 Với observation phi tuyến:
 
+`z = h(x) + v`
+
 \[
 \mathbf{z}=h(\mathbf{x})+\mathbf{v}
 \]
@@ -2419,9 +2413,7 @@ EKF tuyến tính hóa hàm observation quanh trạng thái hiện tại.
 
 Jacobian:
 
-\[
-H=\frac{\partial h}{\partial \mathbf{x}}
-\]
+`H = ∂h/∂x`
 
 Sau đó áp dụng các công thức cập nhật Gaussian.
 
@@ -2435,22 +2427,11 @@ Trong FastSLAM:
 
 Particle Filter biểu diễn phân phối xác suất bằng một tập các mẫu:
 
-\[
-\left\{
-\mathbf{x}^{[1]},
-\mathbf{x}^{[2]},
-\ldots,
-\mathbf{x}^{[N]}
-\right\}
-\]
+{ x\[1], x\[2], ..., x\[N] }
 
 với trọng số:
 
-\[
-\left\{
-w_1,w_2,\ldots,w_N
-\right\}
-\]
+{ w_1, w_2, ... , w_N }
 
 Chu trình:
 
@@ -2498,25 +2479,22 @@ Do đó FastSLAM không dùng Particle Filter để lấy mẫu tất cả landm
 
 Với hàm phi tuyến:
 
-\[
-\mathbf{y}=f(\mathbf{x})
-\]
+`y = f(x)`
 
 Jacobian:
 
-\[
-J=\frac{\partial f}{\partial \mathbf{x}}
-\]
+`J = ∂f/∂x`
 
 Nó mô tả xấp xỉ tuyến tính cục bộ:
 
-\[
-\boxed{
-f(\mathbf{x}+\Delta\mathbf{x})
-\approx
-f(\mathbf{x})+J\Delta\mathbf{x}
-}
-\]
+```Math
+
+f(x + Δx) ≈ f(x) + JΔx
+
+(với J là ma trận Jacobi)
+
+```
+
 
 EKF sử dụng Jacobian để tuyến tính hóa các hàm phi tuyến.
 
@@ -2702,25 +2680,21 @@ Thuật toán của project được xác định như sau:
 
 Chu trình xử lý:
 
-\[
-\boxed{
-\begin{gathered}
-\text{Motion}\\
-\downarrow\\
-\text{Observation}\\
-\downarrow\\
-\text{Data Association}\\
-\downarrow\\
-\text{EKF / Initialization}\\
-\downarrow\\
-\text{Weight}\\
-\downarrow\\
-\text{Normalize}\\
-\downarrow\\
-\text{Resample}
-\end{gathered}
-}
-\]
+```Box
+Motion
+    ↓
+Observation
+    ↓
+Data association
+    ↓
+EKF / initialization
+    ↓
+Weight
+    ↓
+Normalized
+    ↓
+Resample
+```
 
 Implementation ban đầu phải ưu tiên:
 
