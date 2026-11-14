@@ -519,9 +519,9 @@ Các tiêu chí tối thiểu:
 * [ ] Robot có thể thu thập dữ liệu cảm biến.
 * [ ] SLAM có thể xây dựng bản đồ từ dữ liệu cảm biến.
 * [ ] SLAM có thể ước lượng vị trí robot.
+* [ ] Robot có thể di chuyển trong môi trường.
 * [ ] Robot có thể chuyển sang Cleaning.
 * [ ] Robot có thể sử dụng SLAM map để lập kế hoạch.
-* [ ] Robot có thể di chuyển trong môi trường.
 * [ ] Robot có thể thực hiện nhiệm vụ làm sạch.
 * [ ] SLAM tiếp tục hoạt động trong Cleaning.
 * [ ] Hệ thống có thể xử lý việc bản đồ thay đổi khi phát hiện vật cản mới.

@@ -41,20 +41,13 @@ Trong project này, SLAM được thực hiện trong môi trường 2D bằng *
 
 Trong project, pose robot được biểu diễn bởi:
 
-$$
-\mathbf{x}_t =
-\begin{bmatrix}
-x_t\\
-y_t\\
-\theta_t
-\end{bmatrix}
-$$
+**x_t = \[x_t, y_t, θ_t\]ᵀ**
 
 Trong đó:
 
-* \(x_t\): vị trí theo trục \(x\);
-* \(y_t\): vị trí theo trục \(y\);
-* \(\theta_t\): orientation của robot.
+* `x_t`: vị trí theo trục x;
+* `y_t`: vị trí theo trục y;
+* `θ_t`: orientation của robot.
 
 ---
 
@@ -80,14 +73,12 @@ Map
 
 Trong không gian 2D:
 
-$$
-\mathbf{x}=(x,y,\theta)
-$$
+**x = (x, y, θ)**
 
 Cần phân biệt:
 
-* **position**: chỉ \(x,y\);
-* **orientation**: \(\theta\);
+* **position**: chỉ x, y;
+* **orientation**: θ;
 * **pose**: position + orientation.
 
 ---
@@ -98,13 +89,7 @@ Cần phân biệt:
 
 Trong 2D:
 
-$$
-\mathbf{p}=
-\begin{bmatrix}
-x\\
-y
-\end{bmatrix}
-$$
+**p = \[x, y\]ᵀ**
 
 ---
 
@@ -114,9 +99,7 @@ $$
 
 Trong 2D, orientation được biểu diễn bằng một góc:
 
-$$
-\theta
-$$
+**θ**
 
 Đơn vị nên được thống nhất là **radian** trong phần thuật toán.
 
@@ -126,16 +109,7 @@ $$
 
 **Trajectory** (quỹ đạo) là chuỗi pose của robot theo thời gian:
 
-$$
-\mathbf{x}_{1:t}
-=
-\left(
-\mathbf{x}_1,
-\mathbf{x}_2,
-\ldots,
-\mathbf{x}_t
-\right)
-$$
+**x₁:ₜ = (x₁, x₂, …, xₜ)**
 
 FastSLAM sử dụng các particle để biểu diễn các giả thuyết khác nhau về trajectory.
 
@@ -221,7 +195,7 @@ Estimated map
 
 ## 2.5 Estimated Map
 
-**Estimated map** là bản đồ do SLAM tạo ra.
+**Estimated Map** là bản đồ do SLAM tạo ra.
 
 Trong FastSLAM, mỗi particle có một map riêng:
 
@@ -240,13 +214,7 @@ Particle 3 → Map 3
 
 Nó được dùng để đánh giá:
 
-$$
-e_p=
-\sqrt{
-(x-\hat{x})^2+
-(y-\hat{y})^2
-}
-$$
+**e_p = √((x - x̂)² + (y - ŷ)²)**
 
 nhưng không được dùng để cập nhật FastSLAM.
 
@@ -370,12 +338,12 @@ Coverage planning là bài toán xác định đường đi để robot phủ k�
 Ví dụ:
 
 ```text
-┌─────────────────┐
+┌───────────────┐
 │ → → → → → → → │
 │ ← ← ← ← ← ← ← │
 │ → → → → → → → │
 │ ← ← ← ← ← ← ← │
-└─────────────────┘
+└───────────────┘
 ```
 
 Coverage Path Planning không phải nhiệm vụ của FastSLAM.
@@ -404,27 +372,17 @@ angle → range
 
 hoặc:
 
-$$
-(r_k,\phi_k)
-$$
+**(r_k, φ_k)**
 
 ---
 
 ## 4.3 LiDAR Scan
 
-**LiDAR scan** là tập các measurement thu được trong một lần quét.
+**LiDAR Scan** là tập các measurement thu được trong một lần quét.
 
 Ví dụ:
 
-$$
-Z_t=
-\left\{
-(r_1,\phi_1),
-(r_2,\phi_2),
-\ldots,
-(r_K,\phi_K)
-\right\}
-$$
+**Z_t = {(r₁, φ₁), (r₂, φ₂), …, (r_K, φ_K)}**
 
 ---
 
@@ -434,9 +392,7 @@ $$
 
 Ký hiệu:
 
-$$
-r
-$$
+**r**
 
 ---
 
@@ -446,9 +402,7 @@ $$
 
 Ký hiệu:
 
-$$
-\phi
-$$
+**φ**
 
 Bearing khác với orientation của robot.
 
@@ -460,9 +414,7 @@ Bearing khác với orientation của robot.
 
 Ví dụ sensor có:
 
-$$
-FOV=180^\circ
-$$
+**FOV = 180°**
 
 thì sensor chỉ quan sát được một nửa mặt phẳng xung quanh robot.
 
@@ -489,21 +441,11 @@ Observation nằm ngoài range hợp lệ phải được xử lý phù hợp.
 
 Ví dụ:
 
-$$
-r_{\text{measured}}
-=
-r_{\text{true}}
-+
-\epsilon_r
-$$
+**r_measured = r_true + ε_r**
 
 với:
 
-$$
-\epsilon_r
-\sim
-\mathcal{N}(0,\sigma_r^2)
-$$
+**ε_r ~ N(0, σ_r²)**
 
 ---
 
@@ -521,14 +463,7 @@ Measurement là dữ liệu đầu vào cho observation processing.
 
 Trong FastSLAM landmark-based:
 
-$$
-\mathbf{z}
-=
-\begin{bmatrix}
-r\\
-\phi
-\end{bmatrix}
-$$
+**z = \[r, φu\]ᵀ**
 
 Có thể hiểu:
 
@@ -602,13 +537,7 @@ World Frame
 
 Trong 2D:
 
-$$
-R(\theta)=
-\begin{bmatrix}
-\cos\theta & -\sin\theta\\
-\sin\theta & \cos\theta
-\end{bmatrix}
-$$
+**R(θ) = \[\[cos θ, -sin θ\], \[sin θ, cos θ\]\]**
 
 ---
 
@@ -616,19 +545,17 @@ $$
 
 **SE(2)** là nhóm các phép biến đổi rigid-body trong không gian 2D, bao gồm:
 
-* translation theo \(x\);
-* translation theo \(y\);
+* translation theo x;
+* translation theo y;
 * rotation.
 
 Pose:
 
-$$
-(x,y,\theta)
-$$
+**(x, y, θ)**
 
-có thể được xem là một phần tử của \(SE(2)\).
+có thể được xem là một phần tử của **SE(2)**.
 
-Project không nhất thiết phải triển khai trực tiếp toàn bộ formalism của \(SE(2)\), nhưng khái niệm này hữu ích để hiểu coordinate transformation.
+Project không nhất thiết phải triển khai trực tiếp toàn bộ formalism của **SE(2)**, nhưng khái niệm này hữu ích để hiểu coordinate transformation.
 
 ---
 
@@ -640,13 +567,7 @@ Project không nhất thiết phải triển khai trực tiếp toàn bộ forma
 
 Trong project, landmark được biểu diễn bằng điểm 2D:
 
-$$
-\mathbf{m}_j=
-\begin{bmatrix}
-m_x\\
-m_y
-\end{bmatrix}
-$$
+**m_j = \[m_x, m_y\]ᵀ**
 
 ---
 
@@ -654,10 +575,7 @@ $$
 
 **Landmark map** là tập các landmark mà SLAM đã ước lượng:
 
-$$
-M=
-\{m_1,m_2,\ldots,m_N\}
-$$
+**M = {m\_1, m\_2, …, m\_N}**
 
 ---
 
@@ -689,13 +607,7 @@ new landmark
 
 **Landmark covariance** mô tả độ không chắc chắn của vị trí landmark.
 
-$$
-\Sigma_j=
-\begin{bmatrix}
-\sigma_x^2 & \sigma_{xy}\\
-\sigma_{xy} & \sigma_y^2
-\end{bmatrix}
-$$
+**Σ_j = \[\[σ_x², σ_xy\], \[σ_xy, σ_y²\]\]**
 
 Covariance càng nhỏ thường biểu thị estimate càng chắc chắn.
 
@@ -717,9 +629,7 @@ SLAM về bản chất là một bài toán ước lượng xác suất.
 
 Ký hiệu thường dùng:
 
-$$
-p(x)
-$$
+**p(x)**
 
 ---
 
@@ -729,9 +639,7 @@ $$
 
 Ví dụ:
 
-$$
-p(z\mid x)
-$$
+**p(z | x)**
 
 ---
 
@@ -739,17 +647,11 @@ $$
 
 **Posterior** là phân phối sau khi kết hợp prior với observation.
 
-$$
-p(x\mid z)
-$$
+**p(x | z)**
 
 Theo Bayes:
 
-$$
-p(x\mid z)
-\propto
-p(z\mid x)p(x)
-$$
+**p(x | z) ∝ p(z | x)p(x)**
 
 ---
 
@@ -759,13 +661,11 @@ $$
 
 Ví dụ:
 
-$$
-p(x\mid z)
-$$
+**p(x | z)**
 
 đọc là:
 
-> xác suất của \(x\) khi biết \(z\).
+> xác suất của x khi biết z.
 
 ---
 
@@ -775,22 +675,7 @@ $$
 
 Dạng nhiều chiều:
 
-$$
-p(\mathbf{x})
-=
-\frac{
-1
-}{
-\sqrt{(2\pi)^n|\Sigma|}
-}
-\exp
-\left(
--\frac12
-(\mathbf{x}-\boldsymbol{\mu})^T
-\Sigma^{-1}
-(\mathbf{x}-\boldsymbol{\mu})
-\right)
-$$
+**p(x) = 1 / √((2π)ⁿ|Σ|) · exp(-½(x - μ)ᵀΣ⁻¹(x - μ))**
 
 ---
 
@@ -800,15 +685,11 @@ $$
 
 Ký hiệu:
 
-$$
-\boldsymbol{\mu}
-$$
+**μ**
 
 Trong landmark:
 
-$$
-\boldsymbol{\mu}_j
-$$
+**μ_j**
 
 là vị trí landmark được ước lượng.
 
@@ -818,11 +699,11 @@ là vị trí landmark được ước lượng.
 
 **Covariance** mô tả mức độ uncertainty và sự tương quan giữa các biến.
 
+(Ma trận hiệp phương sai)
+
 Ký hiệu:
 
-$$
-\Sigma
-$$
+**Σ**
 
 ---
 
@@ -832,9 +713,7 @@ $$
 
 Nếu:
 
-$$
-\sigma^2
-$$
+**σ²**
 
 lớn, uncertainty của biến tương ứng lớn hơn.
 
@@ -878,9 +757,7 @@ FastSLAM có thể được xem là một phương pháp Bayesian filtering sử
 
 Ví dụ:
 
-$$
-p(x_t\mid x_{t-1},u_t)
-$$
+**p(x_t | x_{t-1}, u_t)**
 
 ---
 
@@ -906,11 +783,7 @@ update
 
 Một particle có dạng khái niệm:
 
-$$
-P^{[i]}
-=
-(x^{[i]},w^{[i]})
-$$
+**P^\[i\] = (x^\[i\], w^\[i\])**
 
 ---
 
@@ -935,9 +808,7 @@ Particle
 
 Ký hiệu:
 
-$$
-w_i
-$$
+**w_i**
 
 Weight càng cao thì particle càng phù hợp với dữ liệu quan sát.
 
@@ -949,11 +820,7 @@ Weight càng cao thì particle càng phù hợp với dữ liệu quan sát.
 
 Trong FastSLAM:
 
-$$
-x_t^{[i]}
-\sim
-p(x_t\mid x_{t-1}^{[i]},u_t)
-$$
+**x_t^\[i\] ~ p(x_t | x_{t-1}^\[i\], u_t)**
 
 ---
 
@@ -961,11 +828,7 @@ $$
 
 **Weighting** là quá trình tính trọng số cho particle dựa trên observation likelihood.
 
-$$
-w_i
-\propto
-p(z_t\mid x_t^{[i]},m^{[i]})
-$$
+**w_i ∝ p(z_t | x_t^\[i\], m^\[i\])**
 
 ---
 
@@ -973,12 +836,9 @@ $$
 
 **Normalization** là quá trình biến các weight thành tổng bằng 1:
 
-$$
-\bar{w}_i
-=
-\frac{w_i}
-{\sum_j w_j}
-$$
+(Chuẩn hóa)
+
+**w̄_i = w_i / Σ_j w_j**
 
 ---
 
@@ -1008,14 +868,9 @@ Particle có weight cao có xác suất được chọn nhiều hơn.
 
 **Effective Sample Size** đo mức độ đa dạng hiệu dụng của particle set.
 
-$$
-N_{\mathrm{eff}}
-=
-\frac{1}
-{\sum_i w_i^2}
-$$
+**N_eff = 1 / Σ_i w_i²**
 
-Nếu \(N_{\mathrm{eff}}\) thấp, particle set có dấu hiệu degeneracy.
+Nếu **N_eff** thấp, particle set có dấu hiệu degeneracy.
 
 ---
 
@@ -1102,11 +957,9 @@ Measurement Update
 
 Nếu:
 
-$$
-z=h(x)+v
-$$
+**z = h(x) + v**
 
-thì EKF sử dụng Jacobian của \(h\).
+thì EKF sử dụng Jacobian của **h**.
 
 Trong FastSLAM, mỗi landmark có một EKF riêng.
 
@@ -1146,11 +999,7 @@ covariance update
 
 **Kalman Gain** xác định mức độ measurement ảnh hưởng đến estimate.
 
-$$
-K=
-\Sigma H^T
-(H\Sigma H^T+Q)^{-1}
-$$
+**K = ΣHᵀ(HΣHᵀ + Q)⁻¹**
 
 ---
 
@@ -1158,9 +1007,7 @@ $$
 
 **Innovation** là sai khác giữa observation thực tế và observation dự đoán.
 
-$$
-\nu=z-\hat{z}
-$$
+**ν = z - ẑ**
 
 Trong bearing, innovation phải được angle-normalized.
 
@@ -1170,10 +1017,7 @@ Trong bearing, innovation phải được angle-normalized.
 
 **Innovation covariance** mô tả uncertainty của innovation.
 
-$$
-S=
-H\Sigma H^T+Q
-$$
+**S = HΣHᵀ + Q**
 
 ---
 
@@ -1181,13 +1025,7 @@ $$
 
 **Joseph Form** là dạng ổn định hơn để cập nhật covariance:
 
-$$
-\Sigma'
-=
-(I-KH)\Sigma(I-KH)^T
-+
-KQK^T
-$$
+**Σ′ = (I - KH)Σ(I - KH)ᵀ + KQKᵀ**
 
 Nó giúp giảm một số vấn đề numerical stability.
 
@@ -1199,10 +1037,7 @@ Nó giúp giảm một số vấn đề numerical stability.
 
 **Jacobian** là ma trận đạo hàm riêng của một vector-valued function.
 
-$$
-J=
-\frac{\partial f}{\partial x}
-$$
+**J = ∂f / ∂x**
 
 Jacobian được dùng để tuyến tính hóa mô hình phi tuyến trong EKF.
 
@@ -1212,11 +1047,7 @@ Jacobian được dùng để tuyến tính hóa mô hình phi tuyến trong EKF
 
 **Linearization** là quá trình xấp xỉ một hàm phi tuyến bằng mô hình tuyến tính quanh một điểm.
 
-$$
-f(x+\Delta x)
-\approx
-f(x)+J\Delta x
-$$
+**f(x + Δx) ≈ f(x) + JΔx**
 
 EKF dựa trên ý tưởng này.
 
@@ -1230,15 +1061,13 @@ EKF dựa trên ý tưởng này.
 
 Trong project:
 
-$$
-z=h(x,m)+v
-$$
+**z = h(x, m) + v**
 
 với:
 
-* \(x\): robot pose;
-* \(m\): landmark;
-* \(v\): sensor noise.
+* x: robot pose;
+* m: landmark;
+* v: sensor noise.
 
 ---
 
@@ -1248,9 +1077,7 @@ với:
 
 Dạng xác suất:
 
-$$
-p(x_t\mid x_{t-1},u_t)
-$$
+**p(x_t | x_{t-1}, u_t)**
 
 ---
 
@@ -1260,9 +1087,7 @@ $$
 
 Ví dụ:
 
-$$
-p(z_t\mid x_t,m)
-$$
+**p(z_t | x_t, m)**
 
 ---
 
@@ -1278,7 +1103,7 @@ $$
 
 ## 14.2 Association Hypothesis
 
-**Association hypothesis** là giả thuyết về việc observation \(z\) thuộc về landmark nào.
+**Association hypothesis** là giả thuyết về việc observation z thuộc về landmark nào.
 
 Ví dụ:
 
@@ -1302,13 +1127,7 @@ Trong project, gating dựa trên Mahalanobis distance.
 
 **Mahalanobis distance** đo khoảng cách giữa observation và prediction có xét đến covariance.
 
-$$
-d^2
-=
-\nu^T
-S^{-1}
-\nu
-$$
+**d² = νᵀS⁻¹ν**
 
 Nó tốt hơn Euclidean distance trong trường hợp uncertainty theo các hướng khác nhau.
 
@@ -1318,9 +1137,7 @@ Nó tốt hơn Euclidean distance trong trường hợp uncertainty theo các h�
 
 **Association threshold** là ngưỡng quyết định observation có đủ gần một landmark để được xem là match hay không.
 
-$$
-d^2<\gamma
-$$
+**d² < γ**
 
 Nếu không có landmark nào thỏa mãn, observation có thể được dùng để tạo landmark mới.
 
@@ -1334,17 +1151,11 @@ Nếu không có landmark nào thỏa mãn, observation có thể được dùng
 
 Thay vì:
 
-$$
-w=\prod_i p_i
-$$
+**w = ∏_i p_i**
 
 có thể tính:
 
-$$
-\log w
-=
-\sum_i\log p_i
-$$
+**log w = Σ_i log p_i**
 
 Điều này giúp tránh underflow.
 
@@ -1389,17 +1200,13 @@ Các vấn đề quan trọng:
 
 Trong EKF, innovation covariance:
 
-$$
-S
-$$
+**S**
 
 có thể trở nên gần singular nếu mô hình hoặc dữ liệu không hợp lệ.
 
 Implementation nên ưu tiên giải hệ tuyến tính thay vì tính trực tiếp:
 
-$$
-S^{-1}
-$$
+**S⁻¹**
 
 ---
 
@@ -1409,11 +1216,9 @@ Một covariance hợp lệ thường phải là **positive semi-definite**.
 
 Điều kiện:
 
-$$
-\mathbf{x}^T\Sigma\mathbf{x}\geq0
-$$
+**xᵀΣx ≥ 0**
 
-với mọi \(\mathbf{x}\).
+với mọi **x**.
 
 ---
 
@@ -1421,18 +1226,11 @@ với mọi \(\mathbf{x}\).
 
 Covariance lý tưởng phải thỏa:
 
-$$
-\Sigma=\Sigma^T
-$$
+**Σ = Σᵀ**
 
 Do numerical error, implementation có thể cần symmetrize:
 
-$$
-\Sigma
-\leftarrow
-\frac12
-(\Sigma+\Sigma^T)
-$$
+**Σ ← ½(Σ + Σᵀ)**
 
 ---
 
@@ -1450,13 +1248,7 @@ $$
 
 Position error:
 
-$$
-e_p=
-\sqrt{
-(x-\hat{x})^2+
-(y-\hat{y})^2
-}
-$$
+**e_p = √((x - x)² + (y - ŷ)²)**
 
 ---
 
@@ -1464,12 +1256,7 @@ $$
 
 **Orientation error** là sai số orientation:
 
-$$
-e_\theta
-=
-\operatorname{normalizeAngle}
-(\theta-\hat{\theta})
-$$
+**e_θ = normalizeAngle(θ - θ̂)**
 
 ---
 
@@ -1477,12 +1264,7 @@ $$
 
 **Mapping error** là sai số giữa estimated landmark và ground-truth landmark tương ứng.
 
-$$
-e_m=
-\left\|
-m-\hat{m}
-\right\|
-$$
+**e_m = ‖m - m̂‖**
 
 ---
 
@@ -1490,14 +1272,7 @@ $$
 
 **RMSE** là một metric thường dùng để đánh giá sai số:
 
-$$
-RMSE=
-\sqrt{
-\frac{1}{N}
-\sum_{i=1}^{N}
-e_i^2
-}
-$$
+**RMSE = √((1/N) Σ_i e_i²)**
 
 ---
 
@@ -1505,13 +1280,7 @@ $$
 
 **Mean error** là trung bình của các error:
 
-$$
-\bar{e}
-=
-\frac1N
-\sum_{i=1}^{N}
-e_i
-$$
+**ē = (1/N) Σ_i e_i**
 
 ---
 
@@ -1519,11 +1288,7 @@ $$
 
 **Maximum error** là error lớn nhất trong toàn bộ trajectory hoặc tập dữ liệu:
 
-$$
-e_{\max}
-=
-\max_i e_i
-$$
+**e_max = max_i e_i**
 
 ---
 
@@ -1621,23 +1386,11 @@ velocity / motion command
 
 Có thể có dạng:
 
-$$
-u_t=
-\begin{bmatrix}
-\Delta s\\
-\Delta\theta
-\end{bmatrix}
-$$
+**u_t = \[Δs, Δθ\]ᵀ**
 
 hoặc velocity:
 
-$$
-u_t=
-\begin{bmatrix}
-v\\
-\omega
-\end{bmatrix}
-$$
+**u_t = \[v, ω\]ᵀ**
 
 ---
 
@@ -1823,9 +1576,7 @@ ICP không phải thuật toán FastSLAM.
 
 Ví dụ:
 
-$$
-\Delta x,\Delta y,\Delta\theta
-$$
+**Δx, Δy, Δθ**
 
 Odometry thường có drift theo thời gian.
 
@@ -2112,15 +1863,13 @@ Scenario:
 
 FastSLAM implementation đơn giản của project có thể có:
 
-$$
-O(NKM)
-$$
+**O(NKM)**
 
 với:
 
-* \(N\): số particle;
-* \(K\): số observation;
-* \(M\): số landmark.
+* N: số particle;
+* K: số observation;
+* M: số landmark.
 
 ---
 
@@ -2212,7 +1961,7 @@ Estimate
 ```text
 Position = (x, y)
 
-Pose = (x, y, theta)
+Pose = (x, y, θ)
 ```
 
 Pose chứa orientation, position thì không.
@@ -2245,9 +1994,7 @@ Trong simulator, control và motion có thể được mô hình hóa khác nhau
 
 **Observation Model** trong SLAM thường mô tả trực tiếp quan hệ:
 
-$$
-z=h(x,m)+v
-$$
+**z = h(x, m) + v**
 
 Observation model là một phần cụ thể hơn của sensor model trong ngữ cảnh estimator.
 
@@ -2628,4 +2375,3 @@ Các thuật ngữ trong toàn bộ project có nghĩa gì?
 Trong đó:
 
 > **`terms.md` là glossary dùng chung cho toàn bộ project; thuật ngữ ưu tiên English để giữ tính nhất quán với tài liệu kỹ thuật, còn phần giải thích được viết bằng tiếng Việt.**
-

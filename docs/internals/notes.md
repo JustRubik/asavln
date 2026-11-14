@@ -16,13 +16,12 @@ Có cân nhắc sử dụng phần cứng. (sẽ nói rõ hơn ở phần Công 
 
 ## Công cụ
 
-- Python (để đảm nhiệm các nhệm vụ về visual)
+- Python (Slam core) + webots
 - Matlab (nếu có, có thể cân nhắc sử dụng octave)
 - C/C++ (để viết firmware cho vi điều khiển, có thể mô phỏng)
 - Assembly (nếu cần thiết)
 - Git/Github (quản lý phiên bản mã nguồn của dự án)
 - Phần cứng (trong trường hợp cần), bao gồm: vi điều khiển esp32/stm32, động cơ giảm tốc, IMU, trong trường hợp tính toán quá nặng mà mcu không kham nổi -> sử dụng laptop và truyền với wifi.
-- Thuần mô phỏng, thì có thể cân nhắc mqtt.
 
 ## Sản phẩm đầu ra
 
@@ -71,14 +70,10 @@ Xem thêm ở các tài liệu trong `specs/`
 
 ### Phân công công việc
 
-(phân công cho việc mô phỏng)
-
-- Làm bản đồ (bản đồ 2D, con robot, vật cản, v.v)
-- SLAM (LiDAR SLAM, loop closure)
-- Path planning (lập đường chạy, tránh vật cản)
-- Làm documents (specs, .pdf, .ppt)
-- Quản lý mã nguồn
-- 
+- Làm documents (specs, .pdf, .ppt) - Wuong Le
+- Làm bản đồ (bản đồ 2D, con robot, vật cản, v.v) - Hawng
+- Quản lý mã nguồn - Hieu
+- Python core - Trung
 
 ### Kế hoạch tuần
 
@@ -87,4 +82,12 @@ Xem thêm ở các tài liệu trong `specs/`
 |Tuần|Nội dung|Kết quả|
 |----|--------|------|
 |Tuần 1|Cả nhóm tập trung tìm hiểu thuật toán SLAM|Báo cáo về cách triển khai, thuật toán|
+
+
+
+
+## App
+
+Kích thước cửa sổ cụ thể (không quá lớn)
+
 
