@@ -1,532 +1,572 @@
 # Requirements
 
-Hệ thống mô phỏng robot hút bụi bằng các công cụ mô phỏng và lập trình đơn giản, sử dụng thuật toán SLAM để lập bản đồ môi trường đồng thời định vị vị trí của robot trên bản đồ đó.
+Hệ thống mô phỏng một robot di động 2D có khả năng khám phá môi trường và xây dựng bản đồ bằng thuật toán FastSLAM 1.0.
 
-* Robot khám phá môi trường xung quanh và lập bản đồ.
+Môi trường được sinh ngẫu nhiên với kích thước cố định, bao gồm các vật cản có hình dạng và kích thước đa dạng. Môi trường được biểu diễn trực quan bằng bảng lưới (Grid Map).
 
-  * Cần xác định vị trí của robot trên bản đồ.
-  * Cần tiếp tục quan sát môi trường.
-  * Cần cập nhật bản đồ khi môi trường có thay đổi, ví dụ xuất hiện thêm vật cản.
+Hệ thống được chia thành hai thành phần độc lập:
 
----
+1. **Simulator:** Mô phỏng môi trường, robot, chuyển động và cảm biến. Simulator duy trì toàn bộ thông tin thực tế (Ground Truth).
+2. **SLAM:** Triển khai thuật toán FastSLAM 1.0 để ước lượng vị trí robot và xây dựng bản đồ dựa trên dữ liệu đầu vào từ Simulator.
 
-# LƯU Ý TRƯỚC KHI ĐỌC CÁI ĐỐNG NÀY
+Một thành phần Visualization & Evaluation độc lập chịu trách nhiệm hiển thị và đánh giá kết quả của hai thành phần trên.
 
-**Đây là file do chatGPT sinh ra, cần phải đọc lại, check từng dòng, vì nó cần thiết cho dự án - JustRubik**
-
-## Mục lục
-
-* [1. Phạm vi hệ thống](#1-phạm-vi-hệ-thống)
-* [2. Yêu cầu chức năng](#2-yêu-cầu-chức-năng)
-
-  * [2.1. Khởi tạo môi trường](#21-khởi-tạo-môi-trường)
-  * [2.2. Khởi tạo robot](#22-khởi-tạo-robot)
-  * [2.3. Exploration](#23-exploration)
-  * [2.4. SLAM](#24-slam)
-  * [2.5. Cleaning](#25-cleaning)
-  * [2.6. Lập kế hoạch đường đi](#26-lập-kế-hoạch-đường-đi)
-  * [2.7. Di chuyển robot](#27-di-chuyển-robot)
-  * [2.8. Phát hiện hoàn thành](#28-phát-hiện-hoàn-thành)
-  * [2.9. Về trạm sạc](#29-về-trạm-sạc)
-* [3. Yêu cầu về cảm biến và mô phỏng](#3-yêu-cầu-về-cảm-biến-và-mô-phỏng)
-* [4. Yêu cầu về bản đồ](#4-yêu-cầu-về-bản-đồ)
-* [5. Yêu cầu về trạng thái robot](#5-yêu-cầu-về-trạng-thái-robot)
-* [6. Yêu cầu về giao diện và trực quan hóa](#6-yêu-cầu-về-giao-diện-và-trực-quan-hóa)
-* [7. Yêu cầu về đánh giá](#7-yêu-cầu-về-đánh-giá)
-* [8. Yêu cầu phi chức năng](#8-yêu-cầu-phi-chức-năng)
-* [9. Giới hạn và giả định](#9-giới-hạn-và-giả-định)
-* [10. Tiêu chí hoàn thành](#10-tiêu-chí-hoàn-thành)
+Toàn bộ hệ thống được triển khai bằng Python, không yêu cầu phần cứng robot thực tế. Webots có thể được sử dụng như một lựa chọn bổ sung cho việc trực quan hóa.
 
 ---
 
 # 1. Phạm vi hệ thống
 
-Hệ thống phải mô phỏng được một robot hút bụi hoạt động trong môi trường hai chiều và sử dụng SLAM để đồng thời định vị robot và xây dựng bản đồ môi trường.
+Hệ thống phải mô phỏng được robot di động 2D hoạt động trong môi trường ngẫu nhiên và sử dụng FastSLAM 1.0 để đồng thời định vị và xây dựng bản đồ.
 
-Hệ thống bao gồm các thành phần chính:
+Các thành phần chính:
 
-* Môi trường mô phỏng.
+- Simulator.
+- Environment Generator.
+- Robot Model.
+- Sensor Simulator.
+- FastSLAM 1.0.
+- Feature Extraction.
+- Visualization.
+- Evaluation.
 
-* Robot hút bụi.
+Các yêu cầu:
 
-* Cảm biến của robot.
-
-* Hệ thống SLAM.
-
-* Bản đồ môi trường.
-
-* Hệ thống định vị.
-
-* Hệ thống lập kế hoạch đường đi.
-
-* Hệ thống điều khiển chuyển động.
-
-* Hệ thống mô phỏng hoạt động hút bụi.
-
-* Hệ thống trực quan hóa và hiển thị kết quả.
-
-* [ ] Hệ thống mô phỏng được môi trường hoạt động của robot.
-
-* [ ] Hệ thống mô phỏng được robot hút bụi.
-
-* [ ] Hệ thống mô phỏng được quá trình robot quan sát môi trường.
-
-* [ ] Hệ thống sử dụng SLAM trong quá trình hoạt động.
-
-* [ ] Hệ thống hỗ trợ hai chế độ Exploration và Cleaning.
-
-* [ ] Hệ thống có thể chuyển từ Exploration sang Cleaning.
-
-* [ ] Hệ thống có thể kết thúc quá trình Cleaning và đưa robot về trạm sạc.
+- [ ] Hệ thống tạo được môi trường ngẫu nhiên có kích thước cố định.
+- [ ] Robot có thể tự khám phá môi trường.
+- [ ] Robot có thể thu thập dữ liệu cảm biến.
+- [ ] FastSLAM 1.0 có thể tiếp nhận dữ liệu từ Simulator.
+- [ ] FastSLAM ước lượng vị trí robot.
+- [ ] FastSLAM xây dựng bản đồ landmark.
+- [ ] Simulator và FastSLAM hoạt động độc lập.
+- [ ] Hệ thống ghi lại trajectory của robot.
+- [ ] Hệ thống hiển thị Ground Truth và kết quả ước lượng.
+- [ ] Hệ thống hỗ trợ đánh giá độ chính xác của SLAM.
 
 ---
 
-# 2. Yêu cầu chức năng
+# 2. Simulator
 
-## 2.1. Khởi tạo môi trường
+Simulator là thành phần mô phỏng môi trường và hoạt động của robot.
 
-Hệ thống phải tạo được một môi trường hai chiều để robot hoạt động.
+Simulator chịu trách nhiệm duy trì trạng thái thực tế của hệ thống, không thực hiện thuật toán SLAM.
 
-Môi trường phải chứa các thông tin cần thiết để mô phỏng:
+## 2.1. Environment
 
-* Kích thước môi trường.
+Môi trường được biểu diễn dưới dạng không gian hai chiều.
 
-* Tường hoặc biên của môi trường.
+Có thể sử dụng Grid Map để biểu diễn môi trường và phục vụ trực quan hóa.
 
-* Các vật cản.
+Các yêu cầu:
 
-* Vị trí bắt đầu của robot.
+- [ ] Môi trường có kích thước cố định.
+- [ ] Môi trường có hệ tọa độ xác định.
+- [ ] Môi trường có các biên giới hạn.
+- [ ] Môi trường chứa các vùng trống.
+- [ ] Môi trường chứa các vật cản.
+- [ ] Vật cản có thể có kích thước và hình dạng đa dạng.
+- [ ] Có thể xác định vị trí khởi tạo robot.
+- [ ] Robot không được khởi tạo bên trong vật cản.
 
-* Vị trí trạm sạc.
+## 2.2. Map Generator
 
-* Vùng cần được làm sạch.
+Hệ thống phải có khả năng sinh môi trường ngẫu nhiên.
 
-* [ ] Có thể tạo môi trường với kích thước xác định.
+Các yêu cầu:
 
-* [ ] Có thể xác định các vùng không thể đi qua.
+- [ ] Có thể sinh bản đồ ngẫu nhiên.
+- [ ] Kích thước bản đồ được giữ cố định.
+- [ ] Vị trí vật cản được tạo ngẫu nhiên.
+- [ ] Kích thước vật cản được tạo ngẫu nhiên.
+- [ ] Có thể cấu hình mật độ vật cản.
+- [ ] Vật cản không được chồng lấn không hợp lệ.
+- [ ] Có thể đảm bảo tồn tại khu vực có thể di chuyển.
+- [ ] Có thể sử dụng Random Seed để tái lập bản đồ.
+- [ ] Cùng cấu hình và Random Seed phải tạo ra cùng một môi trường.
 
-* [ ] Có thể tạo tường/biên của môi trường.
+## 2.3. Ground Truth
 
-* [ ] Có thể đặt vật cản trong môi trường.
+Simulator duy trì toàn bộ thông tin thực tế của môi trường.
 
-* [ ] Có thể xác định vùng cần làm sạch.
+Ground Truth bao gồm:
 
-* [ ] Có thể xác định vị trí trạm sạc.
+- Ground-truth map.
+- Ground-truth robot pose.
+- Ground-truth trajectory.
+- Vị trí thực tế của các đặc trưng trong môi trường.
 
-* [ ] Môi trường có một **ground-truth map** dùng làm dữ liệu thực tế của simulator.
+Các yêu cầu:
 
-* [ ] Ground-truth map không được được sử dụng trực tiếp bởi thuật toán SLAM để xây dựng bản đồ.
-
-## 2.2. Khởi tạo robot
-
-Robot phải được khởi tạo trước khi bắt đầu quá trình mô phỏng.
-
-Robot phải có trạng thái tối thiểu:
-
-* Vị trí `x`.
-
-* Vị trí `y`.
-
-* Góc định hướng `θ`.
-
-* Trạng thái chuyển động.
-
-* Trạng thái làm sạch.
-
-* [ ] Có thể xác định pose ban đầu của robot.
-
-* [ ] Robot được đặt tại một vị trí hợp lệ trong môi trường.
-
-* [ ] Robot không được khởi tạo bên trong vật cản.
-
-* [ ] Robot có orientation ban đầu.
-
-* [ ] Robot có trạng thái hoạt động ban đầu xác định.
-
-* [ ] Robot có vị trí trạm sạc hoặc có thể xác định được vị trí trạm sạc.
+- [ ] Simulator lưu trữ đầy đủ thông tin môi trường.
+- [ ] Simulator duy trì ground-truth pose.
+- [ ] Simulator duy trì ground-truth trajectory.
+- [ ] Ground Truth được sử dụng để mô phỏng cảm biến.
+- [ ] Ground Truth được sử dụng để kiểm tra va chạm.
+- [ ] Ground Truth được sử dụng để đánh giá kết quả SLAM.
+- [ ] Không cung cấp Ground Truth trực tiếp cho FastSLAM.
 
 ---
 
-## 2.3. Exploration
+# 3. Robot Model
 
-Trong chế độ Exploration, robot phải khám phá môi trường nhằm thu thập dữ liệu cảm biến và xây dựng bản đồ.
+Robot được mô hình hóa dưới dạng robot di động hai chiều.
 
-* [ ] Robot có thể di chuyển trong môi trường Exploration.
-* [ ] Robot có thể thu thập dữ liệu cảm biến trong khi di chuyển.
-* [ ] Dữ liệu cảm biến được đưa vào hệ thống SLAM.
-* [ ] SLAM cập nhật bản đồ trong quá trình Exploration.
-* [ ] SLAM cập nhật vị trí ước lượng của robot trong quá trình Exploration.
-* [ ] Robot có thể tiếp tục khám phá các khu vực chưa được quan sát.
-* [ ] Hệ thống có thể xác định khi quá trình Exploration hoàn thành.
-* [ ] Sau khi Exploration hoàn thành, hệ thống có thể chuyển sang Cleaning.
+Trạng thái thực tế:
 
-### Điều kiện kết thúc Exploration
+- Position `(x, y)`.
+- Orientation `θ`.
+- Linear velocity.
+- Angular velocity.
 
-Exploration có thể được coi là hoàn thành khi môi trường đã được quan sát đủ để tạo ra bản đồ phục vụ cho quá trình Cleaning.
+Các yêu cầu:
 
-* [ ] Có tiêu chí xác định Exploration hoàn thành.
-* [ ] Tiêu chí hoàn thành không dựa trực tiếp vào ground-truth map trong thuật toán SLAM.
+- [ ] Robot có pose ban đầu xác định.
+- [ ] Robot có thể di chuyển tiến và lùi.
+- [ ] Robot có thể thay đổi hướng.
+- [ ] Robot cập nhật pose theo từng timestep.
+- [ ] Robot không xuyên qua vật cản.
+- [ ] Robot không đi ra ngoài biên môi trường.
+- [ ] Chuyển động thực tế được lưu lại.
+- [ ] Có thể mô phỏng sai số chuyển động.
 
----
-
-## 2.4. SLAM
-
-Hệ thống phải sử dụng thuật toán SLAM để đồng thời:
-
-1. Ước lượng vị trí của robot.
-2. Xây dựng hoặc cập nhật bản đồ môi trường.
-
-* [ ] SLAM nhận dữ liệu từ cảm biến của robot.
-* [ ] SLAM duy trì trạng thái ước lượng của robot.
-* [ ] SLAM duy trì bản đồ được xây dựng từ dữ liệu cảm biến.
-* [ ] SLAM cập nhật pose của robot theo từng bước mô phỏng.
-* [ ] SLAM cập nhật bản đồ theo dữ liệu cảm biến mới.
-* [ ] SLAM không sử dụng trực tiếp ground-truth pose.
-* [ ] SLAM không sử dụng trực tiếp ground-truth map.
-* [ ] Bản đồ do SLAM tạo ra được sử dụng cho các chức năng tiếp theo của robot.
-
-### SLAM trong Exploration
-
-* [ ] SLAM hoạt động liên tục trong Exploration.
-* [ ] Bản đồ được xây dựng dần theo quá trình robot khám phá.
-* [ ] Pose ước lượng được cập nhật theo quá trình robot di chuyển.
-
-### SLAM trong Cleaning
-
-SLAM không dừng hoàn toàn sau khi Exploration kết thúc.
-
-* [ ] SLAM tiếp tục nhận dữ liệu cảm biến trong Cleaning.
-* [ ] SLAM tiếp tục định vị robot trong Cleaning.
-* [ ] SLAM có thể cập nhật bản đồ khi nhận được thông tin mới.
-* [ ] Hệ thống có thể phản ứng với thay đổi của môi trường.
-* [ ] Vật cản mới có thể được phản ánh vào bản đồ nếu được cảm biến phát hiện.
+Robot không được sử dụng ground-truth pose để tự định vị.
 
 ---
 
-## 2.5. Cleaning
+# 4. Sensor Simulator
 
-Trong chế độ Cleaning, robot phải sử dụng bản đồ đã xây dựng để thực hiện nhiệm vụ làm sạch môi trường.
+Simulator phải mô phỏng dữ liệu cảm biến và cung cấp dữ liệu này cho FastSLAM.
 
-* [ ] Robot chuyển sang Cleaning sau khi Exploration hoàn thành.
-* [ ] Robot sử dụng bản đồ SLAM để xác định khu vực cần làm sạch.
-* [ ] Robot xác định được các khu vực đã được làm sạch.
-* [ ] Robot có thể lựa chọn khu vực tiếp theo cần làm sạch.
-* [ ] Robot có thể lập kế hoạch đường đi tới khu vực cần làm sạch.
-* [ ] Robot di chuyển theo đường đi được lập kế hoạch.
-* [ ] Robot thực hiện hành động hút bụi trong khi di chuyển.
-* [ ] Hệ thống cập nhật trạng thái các khu vực đã được làm sạch.
-* [ ] Robot tiếp tục sử dụng SLAM trong quá trình Cleaning.
+## 4.1. LiDAR / Range Sensor
 
----
+Sử dụng mô hình LiDAR 2D để thu thập thông tin về môi trường.
 
-## 2.6. Lập kế hoạch đường đi
+Các yêu cầu:
 
-Hệ thống phải có khả năng lựa chọn đường đi cho robot dựa trên bản đồ hiện tại.
+- [ ] Cảm biến có Field of View xác định.
+- [ ] Có số lượng tia hoặc độ phân giải xác định.
+- [ ] Có giới hạn khoảng cách tối đa.
+- [ ] Mỗi tia trả về khoảng cách đến vật thể gần nhất.
+- [ ] Dữ liệu cảm biến được cập nhật theo timestep.
+- [ ] Có thể thêm noise vào dữ liệu.
+- [ ] Có thể thay đổi tham số cảm biến.
+- [ ] Dữ liệu cảm biến không chứa trực tiếp thông tin Ground Truth.
 
-* [ ] Bộ lập kế hoạch nhận bản đồ hiện tại.
-* [ ] Bộ lập kế hoạch nhận vị trí hiện tại của robot.
-* [ ] Bộ lập kế hoạch xác định được mục tiêu tiếp theo.
-* [ ] Bộ lập kế hoạch tạo ra một đường đi từ robot tới mục tiêu.
-* [ ] Đường đi không được đi xuyên qua vùng được xác định là vật cản.
-* [ ] Hệ thống có thể lập lại đường đi khi đường đi hiện tại không còn phù hợp.
-* [ ] Hệ thống có thể lập lại đường đi khi phát hiện vật cản mới.
-* [ ] Hệ thống có thể lựa chọn mục tiêu tiếp theo sau khi hoàn thành một khu vực.
+## 4.2. Odometry
 
----
+Simulator tạo dữ liệu chuyển động quan sát được từ chuyển động thực tế của robot.
 
-## 2.7. Di chuyển robot
+Các yêu cầu:
 
-Robot phải có khả năng di chuyển theo lệnh điều khiển và cập nhật trạng thái của nó trong simulator.
+- [ ] Có thể tạo dữ liệu odometry.
+- [ ] Odometry có thể chứa sai số.
+- [ ] Có thể cấu hình noise của odometry.
+- [ ] Ground-truth motion và observed motion được lưu riêng biệt.
+- [ ] FastSLAM chỉ nhận observed motion.
 
-* [ ] Robot có thể di chuyển theo hướng tiến/lùi.
-* [ ] Robot có thể thay đổi hướng.
-* [ ] Robot cập nhật pose sau mỗi bước mô phỏng.
-* [ ] Robot không được xuyên qua vật cản.
-* [ ] Robot không được đi ra ngoài biên môi trường.
-* [ ] Chuyển động của robot tạo ra dữ liệu đầu vào cho SLAM.
-* [ ] Chuyển động thực tế của robot được lưu dưới dạng ground-truth để phục vụ đánh giá.
-* [ ] Ground-truth pose không được cung cấp trực tiếp cho SLAM.
+## 4.3. Feature Extraction
 
----
+FastSLAM 1.0 sử dụng mô hình bản đồ landmark. Vì vậy, dữ liệu cảm biến cần được xử lý để trích xuất các đặc trưng có thể quan sát.
 
-## 2.8. Phát hiện hoàn thành
+Các yêu cầu:
 
-Hệ thống phải xác định được khi robot đã hoàn thành nhiệm vụ làm sạch.
-
-* [ ] Hệ thống theo dõi trạng thái của vùng cần làm sạch.
-* [ ] Hệ thống xác định được vùng nào đã được làm sạch.
-* [ ] Hệ thống xác định được vùng nào chưa được làm sạch.
-* [ ] Hệ thống xác định được khi toàn bộ vùng yêu cầu đã được làm sạch.
-* [ ] Khi hoàn thành Cleaning, robot ngừng tìm kiếm khu vực mới cần làm sạch.
-* [ ] Sau khi hoàn thành, robot chuyển sang trạng thái trở về trạm sạc.
+- [ ] Có thể trích xuất landmark từ dữ liệu cảm biến.
+- [ ] Landmark có thể được biểu diễn bằng tọa độ hoặc thông tin đo khoảng cách và góc.
+- [ ] Có thể mô phỏng sai số đo landmark.
+- [ ] Có thể thực hiện Data Association.
+- [ ] Không cung cấp tọa độ landmark thực tế cho FastSLAM.
+- [ ] Ground-truth landmark chỉ được sử dụng để đánh giá.
 
 ---
 
-## 2.9. Về trạm sạc
+# 5. FastSLAM 1.0
 
-Sau khi hoàn thành nhiệm vụ Cleaning, robot phải quay về trạm sạc.
+FastSLAM 1.0 là thuật toán SLAM chính của hệ thống.
 
-* [ ] Hệ thống xác định được vị trí trạm sạc.
-* [ ] Robot có thể lập kế hoạch đường đi về trạm sạc.
-* [ ] Robot có thể di chuyển về trạm sạc.
-* [ ] Robot tránh vật cản trên đường về.
-* [ ] Robot sử dụng pose ước lượng của SLAM trong quá trình di chuyển.
-* [ ] Hệ thống xác định được khi robot đã về tới trạm sạc.
-* [ ] Khi tới trạm sạc, simulation có thể kết thúc.
+Thuật toán được triển khai thành một module độc lập với Simulator.
+
+FastSLAM sử dụng Particle Filter để ước lượng trạng thái robot và duy trì bản đồ landmark riêng cho từng particle.
+
+## 5.1. Input
+
+FastSLAM chỉ nhận các dữ liệu sau:
+
+- Odometry / Motion observation.
+- Sensor measurements.
+- Landmark observations sau quá trình trích xuất đặc trưng.
+
+Các yêu cầu:
+
+- [ ] FastSLAM không truy cập trực tiếp Simulator.
+- [ ] FastSLAM không nhận ground-truth pose.
+- [ ] FastSLAM không nhận ground-truth map.
+- [ ] FastSLAM không nhận tọa độ landmark thực tế.
+- [ ] Dữ liệu đầu vào được truyền thông qua một interface xác định.
+
+## 5.2. Particle Filter
+
+FastSLAM sử dụng tập hợp các particle để biểu diễn phân bố xác suất của robot pose.
+
+Các yêu cầu:
+
+- [ ] Có thể khởi tạo số lượng particle xác định.
+- [ ] Mỗi particle duy trì một robot pose.
+- [ ] Mỗi particle duy trì một bản đồ landmark riêng.
+- [ ] Có thể cập nhật particle dựa trên motion model.
+- [ ] Có thể cập nhật trọng số particle dựa trên sensor measurements.
+- [ ] Có thể thực hiện resampling.
+- [ ] Có thể cấu hình số lượng particle.
+- [ ] Có thể theo dõi phân bố particle theo thời gian.
+
+## 5.3. Landmark Mapping
+
+Mỗi particle duy trì một bản đồ landmark riêng, sử dụng EKF để ước lượng vị trí và độ bất định của từng landmark.
+
+Các yêu cầu:
+
+- [ ] Có thể khởi tạo landmark mới.
+- [ ] Có thể cập nhật landmark đã được quan sát.
+- [ ] Có thể duy trì covariance của landmark.
+- [ ] Có thể xử lý dữ liệu quan sát lặp lại.
+- [ ] Có thể thực hiện Data Association.
+- [ ] Bản đồ landmark được cập nhật trong quá trình hoạt động.
+
+## 5.4. Localization
+
+FastSLAM phải ước lượng vị trí và hướng của robot.
+
+Các yêu cầu:
+
+- [ ] Có thể ước lượng robot pose theo từng timestep.
+- [ ] Có thể xác định pose đại diện từ tập particle.
+- [ ] Có thể duy trì độ bất định của pose.
+- [ ] Có thể lưu estimated trajectory.
+- [ ] Có thể xuất particle set để phục vụ visualization.
+
+## 5.5. Output
+
+FastSLAM cung cấp các dữ liệu:
+
+- Estimated pose.
+- Estimated trajectory.
+- Particle set.
+- Estimated landmark map.
+- Landmark covariance.
+- Particle weights.
+
+Các yêu cầu:
+
+- [ ] Có interface xuất dữ liệu xác định.
+- [ ] Có thể lưu kết quả sau khi simulation kết thúc.
+- [ ] Có thể thay thế FastSLAM bằng thuật toán SLAM khác mà không phải sửa Simulator.
 
 ---
 
-# 3. Yêu cầu về cảm biến và mô phỏng
+# 6. Exploration
 
-Hệ thống phải mô phỏng dữ liệu cảm biến của robot thay vì cung cấp trực tiếp thông tin môi trường cho thuật toán SLAM.
+Robot phải tự khám phá môi trường nhằm thu thập dữ liệu cảm biến và cung cấp dữ liệu cho FastSLAM.
 
-### LiDAR / Range Sensor
+Các yêu cầu:
 
-* [ ] Robot có cảm biến đo khoảng cách.
-* [ ] Cảm biến có trường quan sát xác định.
-* [ ] Cảm biến có số lượng tia hoặc độ phân giải xác định.
-* [ ] Cảm biến trả về khoảng cách tới vật thể gần nhất trong mỗi hướng quan sát.
-* [ ] Cảm biến có giới hạn khoảng cách tối thiểu/tối đa.
-* [ ] Dữ liệu cảm biến được cập nhật theo từng timestep.
-* [ ] Dữ liệu cảm biến có thể được thêm noise để mô phỏng cảm biến thực tế.
-* [ ] Cảm biến không được cung cấp ground-truth map trực tiếp cho SLAM.
+- [ ] Robot có thể tự lựa chọn hướng di chuyển.
+- [ ] Robot có thể thu thập dữ liệu cảm biến liên tục.
+- [ ] Robot sử dụng thông tin định vị từ FastSLAM.
+- [ ] Robot có thể ưu tiên các khu vực chưa được khám phá.
+- [ ] Robot có thể tránh vật cản dựa trên thông tin quan sát.
+- [ ] Robot có thể lựa chọn mục tiêu khám phá tiếp theo.
+- [ ] Robot có thể tiếp tục hoạt động cho đến khi đạt điều kiện kết thúc.
 
-### Motion / Odometry
+Điều kiện kết thúc có thể dựa trên:
 
-Nếu simulator sử dụng odometry hoặc thông tin chuyển động:
+- Tỷ lệ quan sát môi trường.
+- Không còn mục tiêu khám phá có thể tiếp cận.
+- Đạt giới hạn số timestep.
 
-* [ ] Có thể tạo dữ liệu chuyển động từ chuyển động của robot.
-* [ ] Odometry có thể có sai số.
-* [ ] Sai số odometry có thể được cấu hình.
-* [ ] Ground-truth motion và estimated/observed motion được phân biệt rõ ràng.
+Không sử dụng Ground-truth map để quyết định quá trình khám phá hoàn thành.
 
 ---
 
-# 4. Yêu cầu về bản đồ
+# 7. Visualization
 
-Hệ thống phải phân biệt bản đồ thực tế của simulator và bản đồ được SLAM xây dựng.
+Visualization là một module độc lập, có nhiệm vụ hiển thị trạng thái của Simulator và kết quả FastSLAM.
 
-## Ground-truth map
+Không được can thiệp vào quá trình xử lý của thuật toán.
 
-Ground-truth map biểu diễn môi trường thực tế mà simulator sử dụng.
+Ưu tiên giao diện trực quan 2D dạng top-down, có thể quan sát rõ môi trường và hoạt động của robot.
 
-* [ ] Ground-truth map chứa thông tin đầy đủ về môi trường.
-* [ ] Ground-truth map được sử dụng để mô phỏng cảm biến.
-* [ ] Ground-truth map được sử dụng để kiểm tra va chạm.
-* [ ] Ground-truth map có thể được sử dụng để đánh giá độ chính xác của SLAM.
-* [ ] Ground-truth map không được cung cấp trực tiếp cho SLAM.
+## 7.1. Environment View
 
-## SLAM map
+- [ ] Hiển thị toàn bộ môi trường.
+- [ ] Hiển thị Grid Map.
+- [ ] Hiển thị các vật cản với hình dạng và kích thước tương ứng.
+- [ ] Hiển thị biên môi trường.
+- [ ] Hiển thị tọa độ hoặc hệ lưới.
+- [ ] Có thể thay đổi tỷ lệ hiển thị.
 
-SLAM map là bản đồ do robot xây dựng từ dữ liệu cảm biến.
+## 7.2. Robot View
 
-* [ ] SLAM map được khởi tạo khi simulation bắt đầu.
-* [ ] SLAM map được cập nhật trong Exploration.
-* [ ] SLAM map tiếp tục được cập nhật trong Cleaning.
-* [ ] SLAM map có thể biểu diễn vùng chưa quan sát.
-* [ ] SLAM map có thể biểu diễn vùng trống.
-* [ ] SLAM map có thể biểu diễn vật cản.
-* [ ] SLAM map được sử dụng cho localization và path planning.
+- [ ] Hiển thị robot bằng hình dạng trực quan thay vì chỉ một điểm.
+- [ ] Hiển thị orientation.
+- [ ] Hiển thị hướng di chuyển.
+- [ ] Hiển thị vùng quan sát của cảm biến.
+- [ ] Có thể hiển thị các tia LiDAR.
+
+## 7.3. SLAM View
+
+- [ ] Hiển thị estimated pose.
+- [ ] Hiển thị estimated trajectory.
+- [ ] Hiển thị particle cloud.
+- [ ] Hiển thị estimated landmarks.
+- [ ] Có thể hiển thị covariance của landmark.
+- [ ] Có thể so sánh vị trí thực tế và vị trí ước lượng.
+
+## 7.4. Trajectory View
+
+- [ ] Hiển thị ground-truth trajectory.
+- [ ] Hiển thị estimated trajectory.
+- [ ] Có thể phân biệt hai trajectory bằng màu sắc hoặc kiểu đường.
+- [ ] Có thể quan sát sự khác biệt giữa hai trajectory theo thời gian.
+
+## 7.5. Interface
+
+- [ ] Có thể bắt đầu simulation.
+- [ ] Có thể tạm dừng simulation.
+- [ ] Có thể tiếp tục simulation.
+- [ ] Có thể reset simulation.
+- [ ] Có thể điều chỉnh tốc độ mô phỏng.
+- [ ] Có thể lựa chọn các lớp dữ liệu muốn hiển thị.
+- [ ] Có thể quan sát kết quả cuối cùng.
+
+Visualization có thể sử dụng Python với thư viện đồ họa phù hợp. Webots là lựa chọn bổ sung, không bắt buộc.
 
 ---
 
-# 5. Yêu cầu về trạng thái robot
+# 8. Evaluation
 
-Hệ thống phải duy trì trạng thái của robot trong suốt quá trình mô phỏng.
+Evaluation là module độc lập dùng để đánh giá kết quả FastSLAM dựa trên Ground Truth do Simulator cung cấp.
 
-Trạng thái tối thiểu gồm:
+## 8.1. Localization Evaluation
 
-* Pose thực tế.
-* Pose ước lượng.
-* Chế độ hoạt động.
-* Trạng thái làm sạch.
-* Trạng thái di chuyển.
-* Trạng thái nhiệm vụ.
+- [ ] So sánh estimated pose và ground-truth pose.
+- [ ] Tính sai số vị trí.
+- [ ] Tính sai số orientation.
+- [ ] Tính sai số trung bình.
+- [ ] Tính RMSE.
+- [ ] So sánh estimated trajectory và ground-truth trajectory.
 
-Các chế độ chính:
+## 8.2. Mapping Evaluation
+
+- [ ] So sánh estimated landmarks với ground-truth landmarks.
+- [ ] Đánh giá sai số vị trí landmark.
+- [ ] Đánh giá độ bất định của landmark.
+- [ ] Xác định landmark được phát hiện chính xác.
+- [ ] Xác định landmark bị bỏ sót hoặc nhận dạng sai.
+
+## 8.3. Exploration Evaluation
+
+- [ ] Tính tỷ lệ diện tích đã được quan sát.
+- [ ] Tính tổng quãng đường robot di chuyển.
+- [ ] Tính tổng số timestep.
+- [ ] Đánh giá mức độ bao phủ môi trường.
+- [ ] Xác định robot có hoàn thành quá trình khám phá hay không.
+
+---
+
+# 9. Kiến trúc phần mềm
+
+Toàn bộ hệ thống được triển khai bằng Python.
+
+Các module phải độc lập và giao tiếp thông qua những interface xác định.
+
+Cấu trúc đề xuất:
 
 ```text
-EXPLORATION
-    ↓
-CLEANING
-    ↓
-RETURN_TO_CHARGER
-    ↓
-FINISHED
+project/
+│
+├── simulator/
+│   ├── environment.py
+│   ├── map_generator.py
+│   ├── robot.py
+│   ├── sensors.py
+│   └── simulator.py
+│
+├── slam/
+│   ├── fastslam.py
+│   ├── particle.py
+│   ├── motion_model.py
+│   ├── measurement_model.py
+│   ├── landmark.py
+│   ├── ekf.py
+│   └── data_association.py
+│
+├── exploration/
+│   ├── explorer.py
+│   └── path_planning.py
+│
+├── visualization/
+│   ├── renderer.py
+│   ├── environment_view.py
+│   ├── robot_view.py
+│   └── slam_view.py
+│
+├── evaluation/
+│   ├── localization.py
+│   ├── mapping.py
+│   └── metrics.py
+│
+├── config/
+│   └── config.py
+│
+└── main.py
 ```
 
-* [ ] Hệ thống duy trì ground-truth pose.
-* [ ] Hệ thống duy trì estimated pose.
-* [ ] Hai loại pose được lưu riêng biệt.
-* [ ] Robot có trạng thái Exploration.
-* [ ] Robot có trạng thái Cleaning.
-* [ ] Robot có trạng thái Return to Charger.
-* [ ] Robot có trạng thái Finished.
-* [ ] Chuyển đổi giữa các trạng thái được xác định rõ ràng.
+Các yêu cầu:
+
+- [ ] Simulator không phụ thuộc vào FastSLAM.
+- [ ] FastSLAM không phụ thuộc vào Simulator.
+- [ ] Hai module giao tiếp thông qua dữ liệu đầu vào và đầu ra.
+- [ ] Visualization có thể đọc dữ liệu từ cả hai module.
+- [ ] Evaluation có thể truy cập Ground Truth và SLAM output.
+- [ ] Có thể thay thế FastSLAM bằng thuật toán khác.
+- [ ] Có thể thay thế thuật toán exploration.
+- [ ] Có thể thay thế công cụ visualization.
+- [ ] Có thể chạy simulation mà không cần Webots.
 
 ---
 
-# 6. Yêu cầu về giao diện và trực quan hóa
+# 10. Yêu cầu phi chức năng
 
-Hệ thống phải cung cấp khả năng quan sát quá trình mô phỏng và kết quả của SLAM.
+## 10.1. Tính đơn giản
 
-* [ ] Hiển thị môi trường mô phỏng.
-* [ ] Hiển thị robot.
-* [ ] Hiển thị vị trí hiện tại của robot.
-* [ ] Hiển thị hướng của robot.
-* [ ] Hiển thị dữ liệu cảm biến nếu cần thiết.
-* [ ] Hiển thị bản đồ do SLAM xây dựng.
-* [ ] Hiển thị đường đi của robot.
-* [ ] Hiển thị vùng đã được làm sạch.
-* [ ] Phân biệt được ground-truth map và SLAM map khi cần đánh giá.
-* [ ] Có thể quan sát quá trình bản đồ được xây dựng theo thời gian.
-* [ ] Có thể quan sát quá trình robot di chuyển.
+- [ ] Hệ thống được triển khai hoàn toàn bằng Python.
+- [ ] Không yêu cầu phần cứng robot.
+- [ ] Không yêu cầu mô phỏng vật lý phức tạp.
+- [ ] Có thể chạy trên máy tính cá nhân thông thường.
 
----
+## 10.2. Tính cấu hình
 
-# 7. Yêu cầu về đánh giá
+- [ ] Có thể thay đổi kích thước môi trường.
+- [ ] Có thể thay đổi mật độ vật cản.
+- [ ] Có thể thay đổi vị trí và kích thước vật cản.
+- [ ] Có thể thay đổi vị trí robot ban đầu.
+- [ ] Có thể thay đổi tham số cảm biến.
+- [ ] Có thể thay đổi noise của cảm biến và odometry.
+- [ ] Có thể thay đổi số lượng particle.
+- [ ] Có thể thay đổi các tham số FastSLAM.
 
-Hệ thống phải cho phép đánh giá kết quả của thuật toán SLAM và hoạt động của robot.
+## 10.3. Tính tái lập
 
-## Đánh giá localization
+- [ ] Có thể sử dụng Random Seed.
+- [ ] Cùng cấu hình và seed phải tạo ra cùng môi trường.
+- [ ] Có thể lưu cấu hình simulation.
+- [ ] Có thể chạy lại một scenario.
+- [ ] Có thể lưu dữ liệu kết quả.
 
-* [ ] Có thể so sánh estimated pose với ground-truth pose.
-* [ ] Có thể tính sai số vị trí.
-* [ ] Có thể tính sai số orientation.
-* [ ] Có thể lưu trajectory của robot.
-* [ ] Có thể so sánh ground-truth trajectory và estimated trajectory.
+## 10.4. Tính mở rộng
 
-## Đánh giá mapping
-
-* [ ] Có thể so sánh SLAM map với ground-truth map.
-* [ ] Có thể đánh giá mức độ tương đồng giữa hai bản đồ.
-* [ ] Có thể xác định các vùng được SLAM xây dựng chính xác.
-* [ ] Có thể xác định các vùng SLAM xây dựng sai hoặc chưa quan sát.
-
-## Đánh giá cleaning
-
-* [ ] Có thể xác định tỷ lệ diện tích đã được làm sạch.
-* [ ] Có thể xác định thời gian hoàn thành nhiệm vụ.
-* [ ] Có thể xác định quãng đường robot đã di chuyển.
-* [ ] Có thể xác định robot có hoàn thành nhiệm vụ hay không.
-* [ ] Có thể xác định số lần robot phải lập lại đường đi nếu cần.
+- [ ] Có thể thay thế thuật toán SLAM.
+- [ ] Có thể bổ sung loại cảm biến mới.
+- [ ] Có thể thay thế thuật toán exploration.
+- [ ] Có thể bổ sung phương pháp đánh giá mới.
+- [ ] Có thể thay thế công cụ visualization.
 
 ---
 
-# 8. Yêu cầu phi chức năng
+# 11. Giới hạn và giả định
 
-## 8.1. Tính đơn giản
-
-Hệ thống được xây dựng với mục đích mô phỏng và nghiên cứu thuật toán, do đó không yêu cầu mô phỏng vật lý ở mức độ cao.
-
-* [ ] Hệ thống ưu tiên sự đơn giản và dễ hiểu.
-* [ ] Có thể chạy trên máy tính cá nhân thông thường.
-* [ ] Không yêu cầu mô phỏng vật lý phức tạp.
-* [ ] Không yêu cầu mô phỏng phần cứng robot thực tế.
-
-## 8.2. Tính cấu hình
-
-* [ ] Có thể thay đổi kích thước môi trường.
-* [ ] Có thể thay đổi số lượng vật cản.
-* [ ] Có thể thay đổi vị trí vật cản.
-* [ ] Có thể thay đổi vị trí robot ban đầu.
-* [ ] Có thể thay đổi vị trí trạm sạc.
-* [ ] Có thể thay đổi tham số cảm biến.
-* [ ] Có thể thay đổi noise của cảm biến.
-* [ ] Có thể thay đổi noise của motion/odometry.
-* [ ] Có thể thay đổi các tham số của thuật toán SLAM.
-
-## 8.3. Tính tái lập
-
-* [ ] Có thể sử dụng random seed để tái lập một môi trường.
-* [ ] Cùng một cấu hình và random seed phải tạo ra cùng một môi trường.
-* [ ] Có thể lưu cấu hình của một lần mô phỏng.
-* [ ] Có thể chạy lại một scenario để so sánh kết quả.
-
-## 8.4. Tính mở rộng
-
-* [ ] Có thể thay thế thuật toán SLAM mà không cần thay đổi toàn bộ simulator.
-* [ ] Có thể thay thế mô hình cảm biến.
-* [ ] Có thể thay thế thuật toán path planning.
-* [ ] Có thể thay đổi cấu hình robot.
-* [ ] Có thể thêm loại cảm biến mới trong tương lai.
+- [ ] Môi trường được mô phỏng trong không gian 2D.
+- [ ] Môi trường có kích thước cố định trong mỗi lần simulation.
+- [ ] Grid Map thuộc về Simulator và Visualization.
+- [ ] FastSLAM không sử dụng Grid Map làm cấu trúc bản đồ nội bộ.
+- [ ] FastSLAM sử dụng landmark-based representation.
+- [ ] Robot được mô hình hóa dưới dạng robot di động 2D.
+- [ ] Chuyển động không yêu cầu mô phỏng động lực học phức tạp.
+- [ ] Cảm biến được mô phỏng bằng phần mềm.
+- [ ] Không yêu cầu phần cứng thực tế.
+- [ ] Không yêu cầu Webots.
+- [ ] Ground Truth chỉ phục vụ mô phỏng và đánh giá.
+- [ ] FastSLAM không được truy cập trực tiếp Ground Truth.
 
 ---
 
-# 9. Giới hạn và giả định
+# 12. Tiêu chí hoàn thành
 
-Để giữ simulator ở mức độ đơn giản, hệ thống có thể sử dụng các giả định sau:
-
-* [ ] Môi trường được mô phỏng trong không gian 2D.
-* [ ] Robot được mô hình hóa dưới dạng robot di động 2D.
-* [ ] Môi trường không yêu cầu mô phỏng trọng lực hoặc động lực học vật lý phức tạp.
-* [ ] Vật cản được coi là không thể đi xuyên qua.
-* [ ] Robot có thể nhận dữ liệu cảm biến tại các timestep của simulation.
-* [ ] Robot có thể thực hiện các lệnh chuyển động được tạo bởi simulator.
-* [ ] Hoạt động hút bụi được mô phỏng ở mức trạng thái vùng đã làm sạch, không yêu cầu mô phỏng cơ cấu hút bụi thực tế.
-* [ ] Trạm sạc được biểu diễn dưới dạng một vị trí hoặc vùng xác định trong môi trường.
-* [ ] Các vấn đề như pin, nhiệt độ, công suất động cơ và cơ cấu cơ khí không thuộc phạm vi chính của simulator, trừ khi được bổ sung trong yêu cầu khác.
-
----
-
-# 10. Tiêu chí hoàn thành
-
-Hệ thống được coi là đáp ứng yêu cầu cơ bản khi có thể thực hiện đầy đủ chu trình:
+Hệ thống được coi là hoàn thành khi có thể thực hiện đầy đủ chu trình:
 
 ```text
-Khởi tạo môi trường
-        │
-        ▼
-Khởi tạo robot
-        ├─────────────────────┐
-        ▼                     │
-   Exploration                │
-        │                     │
-        ├── Cảm biến          │
-        ├── SLAM              │
-        ├── Mapping           │
-        └── Localization      │
-        │                     │
-        ▼                     │
-      Cleaning                │
-        │                     │
-        ├── Localization      │
-        ├── Mapping update    │
-        ├── Path planning     │
-        ├── Movement          │
-        └── Cleaning          │
-        │                     │
-        ▼                     │
-Đã làm sạch toàn bộ?          │
-       / \                    │
-     Rồi Chưa─────────────────┴
-      │
-      ▼
-Return to Charger
-      │
-      ▼
-   Finished
+         Khởi tạo
+             |
+             v
+      Sinh môi trường
+             |
+             v
+       Khởi tạo robot
+             |
+             v
+        SIMULATOR
+             |
+             v
+       Robot di chuyển
+             |
+             v
+       Thu thập sensor
+             |
+             v
+      Odometry + Features
+             |
+             v
+        FASTSLAM 1.0
+             |
+       +-----+-----+
+       |           |
+       v           v
+ Localization   Mapping
+       |           |
+       +-----+-----+
+             |
+             v
+     Xuất kết quả SLAM
+             |
+             v
+       Visualization
+             |
+             v
+         Evaluation
+             |
+             v
+      Tiếp tục khám phá
+             |
+             v
+      Đạt điều kiện dừng?
+          /       \
+        Chưa       Rồi
+         |          |
+         +----------+
+                    |
+                    v
+             Dừng simulation
+                    |
+                    v
+              Đánh giá kết quả
 ```
 
 Các tiêu chí tối thiểu:
 
-* [ ] Simulator khởi tạo được một môi trường hợp lệ.
-* [ ] Simulator khởi tạo được robot.
-* [ ] Robot có thể thực hiện Exploration.
-* [ ] Robot có thể thu thập dữ liệu cảm biến.
-* [ ] SLAM có thể xây dựng bản đồ từ dữ liệu cảm biến.
-* [ ] SLAM có thể ước lượng vị trí robot.
-* [ ] Robot có thể di chuyển trong môi trường.
-* [ ] Robot có thể chuyển sang Cleaning.
-* [ ] Robot có thể sử dụng SLAM map để lập kế hoạch.
-* [ ] Robot có thể thực hiện nhiệm vụ làm sạch.
-* [ ] SLAM tiếp tục hoạt động trong Cleaning.
-* [ ] Hệ thống có thể xử lý việc bản đồ thay đổi khi phát hiện vật cản mới.
-* [ ] Hệ thống xác định được khi hoàn thành việc làm sạch.
-* [ ] Robot có thể quay về trạm sạc.
-* [ ] Hệ thống có thể hiển thị kết quả mô phỏng.
-* [ ] Hệ thống có thể đánh giá trajectory/localization.
-* [ ] Hệ thống có thể đánh giá kết quả mapping.
-* [ ] Một scenario có thể được tái lập bằng random seed.
-* [ ] Có thể thay thế thuật toán SLAM mà không phải thiết kế lại toàn bộ simulator.
-
+- [ ] Simulator tạo được môi trường ngẫu nhiên.
+- [ ] Simulator mô phỏng được robot và cảm biến.
+- [ ] Simulator duy trì Ground Truth.
+- [ ] FastSLAM hoạt động độc lập với Simulator.
+- [ ] FastSLAM nhận được dữ liệu odometry và sensor observations.
+- [ ] FastSLAM duy trì được tập particle.
+- [ ] Mỗi particle có bản đồ landmark riêng.
+- [ ] FastSLAM ước lượng được robot pose.
+- [ ] FastSLAM xây dựng được bản đồ landmark.
+- [ ] Robot có thể tự khám phá môi trường.
+- [ ] Hệ thống ghi lại được ground-truth trajectory.
+- [ ] Hệ thống ghi lại được estimated trajectory.
+- [ ] Visualization hiển thị được môi trường và hoạt động của robot.
+- [ ] Visualization hiển thị được kết quả FastSLAM.
+- [ ] Evaluation đánh giá được localization.
+- [ ] Evaluation đánh giá được mapping.
+- [ ] Có thể tái lập một scenario bằng Random Seed.
+- [ ] Có thể thay thế thuật toán SLAM mà không phải thiết kế lại Simulator.

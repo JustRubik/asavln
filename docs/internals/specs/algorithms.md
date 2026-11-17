@@ -6,7 +6,7 @@
 > **Nhóm thuật toán:** Rao-Blackwellized Particle Filter (RBPF)  
 > **Loại SLAM:** SLAM dựa trên landmark  
 > **Cảm biến:** LiDAR 2D / cảm biến khoảng cách mô phỏng  
-> **Cài đặt:** Tự cài đặt, không sử dụng thư viện SLAM bên ngoài
+> **Cài đặt:** Sử dụng thư viện SLAM bên ngoài
 
 ---
 
