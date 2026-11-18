@@ -9,6 +9,7 @@
 `python -m venv .venv`
 
 (Only run this command if there is NO `.venv/`)
+
 (I strongly recommend using `.venv`, because I did config it in .gitignore)
 
 - Then activate the environment:
