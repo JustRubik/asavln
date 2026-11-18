@@ -1,4 +1,14 @@
+# Prevent some temp files
 .~lock*
-__pycache__/
+
+# Virtual environment
 .venv/
+
+# Python cache
+__pycache__/
 *.py[cod]
+
+# Build artifacts
+build/
+dist/
+*.egg-info/

@@ -1,7 +1,16 @@
+[build-system]
+requires = ["setuptools>=68", "pip>=26.3"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "asavln"
 version = "0.0.2"
 requires-python = ">=3.12"
-dependencies = [
-  # Dependencies here
-]
+dependencies = []
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+py-modules = ["main"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
