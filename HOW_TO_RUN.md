@@ -2,11 +2,15 @@
 
 - To run project, first you need to move to the root of project.
 
-`cd <your_project_path>`
+```Bash
+cd <your_project_path>
+```
 
 - Create a new virtual environment
 
-`python -m venv .venv`
+```Bash
+python -m venv .venv
+```
 
 (Only run this command if there is NO `.venv/`)
 
@@ -24,18 +28,26 @@ source .venv/bin/activate
 
 - Make sure that `pip` is updated to at least `26.3`:
 
-`pip --version`
+```Bash
+pip --version
+```
 
 - If not:
 
-`pip install --upgrade pip`
+```Bash
+pip install --upgrade pip
+```
 
 - After those, you now can install all needed dependencies:
 
-`pip install -e .`
+```Bash
+pip install -e .
+```
 
 - While at the project's root directory, use this command to run project:
 
-`python src/main.py`
+```Bash
+python src/main.py
+```
 
 - Done! Everything is easy like that! If you want to exit the venv, just run `deactivate`
